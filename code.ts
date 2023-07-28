@@ -1,7 +1,5 @@
 console.clear();
 
-figma.showUI(__html__);
-
 const variableCollections = figma.variables.getLocalVariableCollections();
 
 function handleCollections() {
@@ -20,7 +18,7 @@ function handleCollections() {
     const { modes, name, variableIds } = collection;
 
     // ATOMIC VARIABLES, has only one mode
-    if (name === "Primitives" /* ATOMIC VARIABLES */) {
+    if (name === "Primitives") {
       for (const variableId of variableIds) {
         const variable = figma.variables.getVariableById(variableId);
         if (!variable) {
@@ -158,6 +156,8 @@ const jsFile = generateJsFile();
 console.log("cssFile", cssFile);
 console.log("themeObject", themeObject);
 
+figma.showUI(__html__);
+
 figma.ui.postMessage({
   css: {
     id: "css-file",
@@ -221,27 +221,27 @@ function getVariableName(name: Variable["name"]) {
 }
 
 function createThemeObject(
-  strings: string[],
+  paths: string[],
   value: string,
   existingObject: any = {}
 ): any {
-  if (strings.length === 0) {
+  if (paths.length === 0) {
     return value;
   }
 
-  const key = strings[0];
-  const remainingStrings = strings.slice(1);
+  const key = paths[0];
+  const remainingPaths = paths.slice(1);
 
   // If the key already exists in the existingObject, merge the new nested
   // object with it.
   if (existingObject.hasOwnProperty(key)) {
     existingObject[key] = createThemeObject(
-      remainingStrings,
+      remainingPaths,
       value,
       existingObject[key]
     );
   } else {
-    existingObject[key] = createThemeObject(remainingStrings, value);
+    existingObject[key] = createThemeObject(remainingPaths, value);
   }
 
   return existingObject;
