@@ -1,5 +1,4 @@
 console.clear();
-console.log("henlo again.");
 
 figma.showUI(__html__);
 
@@ -15,10 +14,11 @@ function handleCollections() {
     value: string;
   }> = [];
 
+  const themeObject = {};
+
   for (const collection of variableCollections) {
     const { modes, name, variableIds } = collection;
 
-    // TODO: handle other collections ("Tokens", "_Prototype - functions")
     // ATOMIC VARIABLES, has only one mode
     if (name === "Primitives" /* ATOMIC VARIABLES */) {
       for (const variableId of variableIds) {
@@ -29,6 +29,9 @@ function handleCollections() {
 
         const { name, id, valuesByMode } = variable;
         const variableName = getVariableName(name);
+
+        const paths = name.split("/");
+        createThemeObject(paths, variableName, themeObject);
 
         const [value] = Object.values(valuesByMode);
         const isValidRgba = isRgbaValue(value);
@@ -62,6 +65,9 @@ function handleCollections() {
           const variableName = getVariableName(name);
           const variableValue = valuesByMode[mode.modeId];
 
+          const paths = name.split("/");
+          createThemeObject(paths, variableName, themeObject);
+
           const isAlias = isVariableAlias(variableValue);
           if (!isAlias) {
             continue;
@@ -92,6 +98,7 @@ function handleCollections() {
     atomicCssVariables,
     semanticCssVariablesLight,
     semanticCssVariablesDark,
+    themeObject,
   };
 }
 
@@ -99,6 +106,7 @@ const {
   atomicCssVariables,
   semanticCssVariablesDark,
   semanticCssVariablesLight,
+  themeObject,
 } = handleCollections();
 
 function generateCssFile() {
@@ -131,13 +139,34 @@ function generateCssFile() {
   return cssFile;
 }
 
+function generateJsFile() {
+  const closeFile = "};\n";
+  let jsFile = "export const theme = {\n";
+
+  for (const [key, value] of Object.entries(themeObject)) {
+    jsFile += `  ${key}: ${value},\n`;
+  }
+
+  jsFile += closeFile;
+
+  return jsFile;
+}
+
 const cssFile = generateCssFile();
+const jsFile = generateJsFile();
 
 console.log("cssFile", cssFile);
+console.log("themeObject", themeObject);
 
 figma.ui.postMessage({
-  id: "css-file",
-  payload: cssFile,
+  css: {
+    id: "css-file",
+    payload: cssFile,
+  },
+  js: {
+    id: "js-file",
+    payload: themeObject,
+  },
 });
 
 // HELPER FUNCTIONS ============================================================
@@ -189,4 +218,31 @@ function isVariableAlias(value: VariableValue): value is VariableAlias {
 
 function getVariableName(name: Variable["name"]) {
   return `--${name.split("/").join("-").toLowerCase()}`;
+}
+
+function createThemeObject(
+  strings: string[],
+  value: string,
+  existingObject: any = {}
+): any {
+  if (strings.length === 0) {
+    return value;
+  }
+
+  const key = strings[0];
+  const remainingStrings = strings.slice(1);
+
+  // If the key already exists in the existingObject, merge the new nested
+  // object with it.
+  if (existingObject.hasOwnProperty(key)) {
+    existingObject[key] = createThemeObject(
+      remainingStrings,
+      value,
+      existingObject[key]
+    );
+  } else {
+    existingObject[key] = createThemeObject(remainingStrings, value);
+  }
+
+  return existingObject;
 }

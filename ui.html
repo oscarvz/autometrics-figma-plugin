@@ -11,10 +11,17 @@
 
     <pre id="css-file"></pre>
 
+    <pre id="js-file"></pre>
+
     <script>
       onmessage = ({ data: { pluginMessage } }) => {
-        const { id, payload } = pluginMessage;
-        document.querySelector(`#${id}`).innerHTML = payload;
+        const {
+          css: { id: cssId, payload: cssPayload },
+          js: { id: jsId, payload: jsPayload },
+        } = pluginMessage;
+
+        document.querySelector(`#${cssId}`).innerHTML = cssPayload;
+        document.querySelector(`#${jsId}`).innerHTML = jsPayload;
       };
     </script>
   </body>
