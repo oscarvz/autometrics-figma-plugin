@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": ["es6"],
+    "lib": ["ESNext"],
+    "moduleResolution": "NodeNext",
     "strict": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@figma"
-    ]
+    "typeRoots": ["./node_modules/@types", "./node_modules/@figma"]
   }
 }

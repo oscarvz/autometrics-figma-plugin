@@ -1,25 +1,13 @@
 {
-  "name": "am-plugin",
+  "name": "autometrics-figma-plugin",
   "id": "1266668751677769064",
   "api": "1.0.0",
   "main": "code.js",
-  "capabilities": [
-    "codegen"
-  ],
+  "capabilities": ["inspect"],
   "enableProposedApi": false,
-  "editorType": [
-    "dev"
-  ],
+  "editorType": ["dev"],
   "ui": "ui.html",
-  "codegenLanguages": [
-    {
-      "label": "Language Label",
-      "value": "language-value"
-    }
-  ],
   "networkAccess": {
-    "allowedDomains": [
-      "none"
-    ]
+    "allowedDomains": ["none"]
   }
 }
