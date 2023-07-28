@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Autometrics Figma Plugin</title>
   </head>
+
   <body>
-    <h1>henlo theres</h1>
-    <iframe></iframe>
+    <h1>henlo</h1>
+
+    <pre id="css-file"></pre>
+
+    <script>
+      onmessage = ({ data: { pluginMessage } }) => {
+        const { id, payload } = pluginMessage;
+        document.querySelector(`#${id}`).innerHTML = payload;
+      };
+    </script>
   </body>
 </html>

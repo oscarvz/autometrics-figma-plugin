@@ -5,12 +5,12 @@ figma.showUI(__html__);
 
 const variableCollections = figma.variables.getLocalVariableCollections();
 
-const atomicCssVariables: Array<string> = [];
-const semanticCssVariablesLight: Array<string> = [];
-const semanticCssVariablesDark: Array<string> = [];
-
 function handleCollections() {
-  let primitiveVariableReferences: Array<{
+  const atomicCssVariables: Array<string> = [];
+  const semanticCssVariablesLight: Array<string> = [];
+  const semanticCssVariablesDark: Array<string> = [];
+
+  const primitiveVariableReferences: Array<{
     id: Variable["id"];
     value: string;
   }> = [];
@@ -74,23 +74,73 @@ function handleCollections() {
             continue;
           }
 
-          const semanticVariableName = `${variableName}: var(${matchedToken.value})`;
+          const semanticVariabl = `${variableName}: var(${matchedToken.value})`;
 
           if (mode.name === "Light") {
-            semanticCssVariablesLight.push(semanticVariableName);
+            semanticCssVariablesLight.push(semanticVariabl);
           }
 
           if (mode.name === "Dark") {
-            semanticCssVariablesDark.push(semanticVariableName);
+            semanticCssVariablesDark.push(semanticVariabl);
           }
         }
       }
     }
   }
+
+  return {
+    atomicCssVariables,
+    semanticCssVariablesLight,
+    semanticCssVariablesDark,
+  };
 }
 
-handleCollections();
+const {
+  atomicCssVariables,
+  semanticCssVariablesDark,
+  semanticCssVariablesLight,
+} = handleCollections();
 
+function generateCssFile() {
+  // TODO (Oscar): use for JS file too
+  const closeFile = "}\n";
+  let cssFile = ":root {\n";
+
+  // Add variables to file, for both atomic and semantic light variables
+  for (const variable of atomicCssVariables) {
+    cssFile += `  ${variable}\n`;
+  }
+
+  for (const variable of semanticCssVariablesLight) {
+    cssFile += `  ${variable}\n`;
+  }
+
+  // Indent & add dark theme selector & variables
+  const darkThemeSelector = "\n  body[data-theme='dark'] {\n";
+  cssFile += darkThemeSelector;
+
+  for (const variable of semanticCssVariablesDark) {
+    cssFile += `    ${variable}\n`;
+  }
+
+  cssFile += `  ${closeFile}`;
+
+  // Close file
+  cssFile += closeFile;
+
+  return cssFile;
+}
+
+const cssFile = generateCssFile();
+
+console.log("cssFile", cssFile);
+
+figma.ui.postMessage({
+  id: "css-file",
+  payload: cssFile,
+});
+
+// HELPER FUNCTIONS ============================================================
 function rgbToHex(value: RGBA) {
   const { r, g, b, a } = value;
   if (a !== 1) {
