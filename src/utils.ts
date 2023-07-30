@@ -7,19 +7,16 @@ export function handleCollections() {
   const semanticCssVariablesLight: Array<string> = [];
   const semanticCssVariablesDark: Array<string> = [];
 
-  const primitiveVariableReferences: Array<{
-    id: Variable['id'];
-    value: string;
-  }> = [];
+  const atomicVariableReferences = new Map<string, string>();
 
   const themeObject = {};
 
-  // TODO: Refactor
-  for (const collection of variableCollections) {
-    const { modes, name, variableIds } = collection;
+  // TODO: Refactor (I heard you liked for loops, so I put for loops inside
+  // a for loop)
+  for (const variableCollection of variableCollections) {
+    const { modes: collectionModes, variableIds } = variableCollection;
 
-    // ATOMIC VARIABLES, has only one mode
-    if (name === 'Primitives') {
+    for (const collectionMode of collectionModes) {
       for (const variableId of variableIds) {
         const variable = figma.variables.getVariableById(variableId);
         if (!variable) {
@@ -27,67 +24,55 @@ export function handleCollections() {
         }
 
         const { name, id, valuesByMode } = variable;
-        const variableName = getVariableName(name);
+        const cssVariableName = getCssVariableName(name);
 
         const paths = name.split(/[\/-]/);
-        addToThemeObject(paths, variableName, themeObject);
+        addToThemeObject(paths, cssVariableName, themeObject);
 
-        const [value] = Object.values(valuesByMode);
-        const isValidRgba = isRgbaValue(value);
+        for (const modeValue of Object.values(valuesByMode)) {
+          const isValidRgba = isRgbaValue(modeValue);
+          const isAlias = isVariableAlias(modeValue);
 
-        if (isValidRgba) {
-          const colorValue = getColorValue(value);
-          atomicCssVariables.push(`${variableName}: ${colorValue};`);
-        }
+          const isBoolean = variable.resolvedType === 'BOOLEAN';
+          const isColor = variable.resolvedType === 'COLOR';
+          const isNumber = variable.resolvedType === 'FLOAT';
+          const isString = variable.resolvedType === 'STRING';
 
-        primitiveVariableReferences.push({
-          id,
-          value: variableName,
-        });
-      }
-    }
-
-    // SEMANTIC VARIABLES, has multiple modes
-    if (name === 'Tokens') {
-      for (const mode of modes) {
-        for (const variableId of variableIds) {
-          const variable = figma.variables.getVariableById(variableId);
-          if (!variable) {
-            continue;
+          if (isColor && isValidRgba) {
+            const colorValue = getColorValue(modeValue);
+            atomicCssVariables.push(`${cssVariableName}: ${colorValue};`);
           }
 
-          const isColorValue = variable.resolvedType === 'COLOR';
-          if (!isColorValue) {
-            continue;
+          if (isNumber) {
+            // TODO: get unit from variable
+            atomicCssVariables.push(`${cssVariableName}: ${modeValue}px;`);
           }
 
-          const { name, valuesByMode } = variable;
-          const variableName = getVariableName(name);
-          const variableValue = valuesByMode[mode.modeId];
+          if (isBoolean || isString) {
+            atomicCssVariables.push(`${cssVariableName}: ${modeValue};`);
+          }
 
-          const paths = name.split(/[\/-]/);
-          addToThemeObject(paths, variableName, themeObject);
-
-          const isAlias = isVariableAlias(variableValue);
           if (!isAlias) {
-            continue;
+            atomicVariableReferences.set(id, cssVariableName);
           }
 
-          const matchedToken = primitiveVariableReferences.find(
-            (reference) => reference.id === variableValue.id,
-          );
-          if (!matchedToken) {
-            continue;
-          }
+          if (isAlias) {
+            // TODO: Add fallback conditional with
+            // figma.variables.getVariableById
+            const matchedToken = atomicVariableReferences.get(modeValue.id);
+            if (!matchedToken) {
+              continue;
+            }
 
-          const semanticVariable = `${variableName}: var(${matchedToken.value})`;
+            const semanticVariable = `${cssVariableName}: var(${matchedToken})`;
 
-          if (mode.name === 'Light') {
-            semanticCssVariablesLight.push(semanticVariable);
-          }
+            if (collectionMode.name === 'Light') {
+              semanticCssVariablesLight.push(semanticVariable);
+            }
 
-          if (mode.name === 'Dark') {
-            semanticCssVariablesDark.push(semanticVariable);
+            if (collectionMode.name === 'Dark') {
+              semanticCssVariablesDark.push(semanticVariable);
+            }
           }
         }
       }
@@ -102,7 +87,7 @@ export function handleCollections() {
   };
 }
 
-export function getColorValue(value: RGBA) {
+function getColorValue(value: RGBA) {
   const { r, g, b, a } = value;
   if (a !== 1) {
     return `rgb(${[r, g, b].map((n) => Math.round(n * 255)).join(' ')} / ${(
@@ -119,11 +104,11 @@ export function getColorValue(value: RGBA) {
   return `#${hex}`;
 }
 
-export function getVariableName(name: Variable['name']) {
+function getCssVariableName(name: Variable['name']) {
   return `--${name.split('/').join('-').toLowerCase()}`;
 }
 
-export function addToThemeObject(
+function addToThemeObject(
   paths: Array<string>,
   value: string,
   currentObject: any = {} /* TODO: fix any */,
@@ -152,7 +137,7 @@ export function addToThemeObject(
     // string, this means we have a duplicate key which we're solving by merging
     // the current one with the next one (for instance: if we can already have
     // bg: "#FFF" but another key is bg-subtle, we can't add `subtle` as a
-    // separate key so we have to create a new one called "bg-subtle").
+    // nested key so we have to create a new one called "bg-subtle").
     // TODO: Update documentation & add convention guidelines.
     if (typeof currentObject[currentKey] === 'string' && nextKey) {
       currentObject = Object.assign(currentObject, {
@@ -187,15 +172,19 @@ export function generateCssFile({
     cssFile += `  ${variable}\n`;
   }
 
-  // Indent & add dark theme selector & variables
-  const darkThemeMediaSelector = '\n  @media (prefers-color-scheme: dark) {\n';
-  cssFile += darkThemeMediaSelector;
+  if (semanticCssVariablesDark.length > 0) {
+    // Indent & add dark theme selector & variables
+    const darkThemeMediaSelector =
+      '\n  @media (prefers-color-scheme: dark) {\n';
+    cssFile += darkThemeMediaSelector;
 
-  for (const variable of semanticCssVariablesDark) {
-    cssFile += `    ${variable}\n`;
+    for (const variable of semanticCssVariablesDark) {
+      cssFile += `    ${variable}\n`;
+    }
+
+    cssFile += `  ${close}`;
   }
 
-  cssFile += `  ${close}`;
   cssFile += close;
 
   return cssFile;
