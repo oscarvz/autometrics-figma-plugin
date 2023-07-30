@@ -1,4 +1,4 @@
-# Autometrics Figma plugin
+# Figma plugin
 
 Hack day project; subject to change and a good refactor.
 

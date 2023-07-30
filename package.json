@@ -1,5 +1,5 @@
 {
-  "name": "autometrics-figma-plugin",
+  "name": "figma-plugin",
   "version": "1.0.0",
   "description": "Figma plugin generating CSS & JS",
   "main": "dist/plugin.js",
@@ -15,6 +15,6 @@
     "parcel": "^2.9.3",
     "typescript": "*"
   },
-  "repository": "git@github.com:oscarvz/autometrics-figma-plugin.git",
+  "repository": "git@github.com:oscarvz/figma-plugin.git",
   "private": false
 }
