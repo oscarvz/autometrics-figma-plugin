@@ -1,8 +1,8 @@
-console.clear();
+import { isRgbaValue, isVariableAlias } from "./typeGuards";
 
-const variableCollections = figma.variables.getLocalVariableCollections();
-
-function handleCollections() {
+export function handleCollections(
+  variableCollections: Array<VariableCollection>
+) {
   const atomicCssVariables: Array<string> = [];
   const semanticCssVariablesLight: Array<string> = [];
   const semanticCssVariablesDark: Array<string> = [];
@@ -29,7 +29,7 @@ function handleCollections() {
         const variableName = getVariableName(name);
 
         const paths = name.split("/");
-        createThemeObject(paths, variableName, themeObject);
+        addToThemeObject(paths, variableName, themeObject);
 
         const [value] = Object.values(valuesByMode);
         const isValidRgba = isRgbaValue(value);
@@ -64,7 +64,7 @@ function handleCollections() {
           const variableValue = valuesByMode[mode.modeId];
 
           const paths = name.split("/");
-          createThemeObject(paths, variableName, themeObject);
+          addToThemeObject(paths, variableName, themeObject);
 
           const isAlias = isVariableAlias(variableValue);
           if (!isAlias) {
@@ -93,21 +93,70 @@ function handleCollections() {
   }
 
   return {
-    atomicCssVariables,
-    semanticCssVariablesLight,
-    semanticCssVariablesDark,
+    atomicCssVariables: sortArray(atomicCssVariables),
+    semanticCssVariablesLight: sortArray(semanticCssVariablesLight),
+    semanticCssVariablesDark: sortArray(semanticCssVariablesDark),
     themeObject,
   };
 }
 
-const {
-  atomicCssVariables,
-  semanticCssVariablesDark,
-  semanticCssVariablesLight,
-  themeObject,
-} = handleCollections();
+export function rgbToHex(value: RGBA) {
+  const { r, g, b, a } = value;
+  if (a !== 1) {
+    return `rgba(${[r, g, b]
+      .map((n) => Math.round(n * 255))
+      .join(", ")}, ${a.toFixed(4)})`;
+  }
 
-function generateCssFile() {
+  const toHex = (value: number) => {
+    const hex = Math.round(value * 255).toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  };
+
+  const hex = [toHex(r), toHex(g), toHex(b)].join("");
+  return `#${hex}`;
+}
+
+export function getVariableName(name: Variable["name"]) {
+  return `--${name.split("/").join("-").toLowerCase()}`;
+}
+
+export function addToThemeObject(
+  paths: string[],
+  value: string,
+  existingObject: any = {}
+): any {
+  if (paths.length === 0) {
+    return value;
+  }
+
+  const key = paths[0];
+  const remainingPaths = paths.slice(1);
+
+  // If the key already exists in the existingObject, merge the new nested
+  // object with it.
+  if (existingObject.hasOwnProperty(key)) {
+    existingObject[key] = addToThemeObject(
+      remainingPaths,
+      value,
+      existingObject[key]
+    );
+  } else {
+    existingObject[key] = addToThemeObject(remainingPaths, value);
+  }
+
+  return existingObject;
+}
+
+function sortArray(array: Array<string>) {
+  return array.sort((a, b) => (a > b ? 1 : -1));
+}
+
+export function generateCssFile({
+  atomicCssVariables,
+  semanticCssVariablesLight,
+  semanticCssVariablesDark,
+}: Omit<ReturnType<typeof handleCollections>, "themeObject">) {
   // TODO (Oscar): use for JS file too
   const closeFile = "}\n";
   let cssFile = ":root {\n";
@@ -137,7 +186,12 @@ function generateCssFile() {
   return cssFile;
 }
 
-function generateJsFile() {
+export function generateJsFile(
+  themeObject: Pick<
+    ReturnType<typeof handleCollections>,
+    "themeObject"
+  >["themeObject"]
+) {
   const closeFile = "};\n";
   let jsFile = "export const theme = {\n";
 
@@ -148,101 +202,4 @@ function generateJsFile() {
   jsFile += closeFile;
 
   return jsFile;
-}
-
-const cssFile = generateCssFile();
-const jsFile = generateJsFile();
-
-console.log("cssFile", cssFile);
-console.log("themeObject", themeObject);
-
-figma.showUI(__html__);
-
-figma.ui.postMessage({
-  css: {
-    id: "css-file",
-    payload: cssFile,
-  },
-  js: {
-    id: "js-file",
-    payload: themeObject,
-  },
-});
-
-// HELPER FUNCTIONS ============================================================
-function rgbToHex(value: RGBA) {
-  const { r, g, b, a } = value;
-  if (a !== 1) {
-    return `rgba(${[r, g, b]
-      .map((n) => Math.round(n * 255))
-      .join(", ")}, ${a.toFixed(4)})`;
-  }
-
-  const toHex = (value: number) => {
-    const hex = Math.round(value * 255).toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  };
-
-  const hex = [toHex(r), toHex(g), toHex(b)].join("");
-  return `#${hex}`;
-}
-
-function isRgbaValue(value: VariableValue): value is RGBA {
-  const values = Object.keys(value);
-
-  return (
-    values.includes("r") &&
-    values.includes("g") &&
-    values.includes("b") &&
-    values.includes("a")
-  );
-}
-
-function isRgbValue(value: VariableValue): value is RGB {
-  const values = Object.keys(value);
-
-  return (
-    values.includes("r") &&
-    values.includes("g") &&
-    values.includes("b") &&
-    !values.includes("a")
-  );
-}
-
-function isVariableAlias(value: VariableValue): value is VariableAlias {
-  const isObject = typeof value === "object";
-  const isColorValue = isRgbaValue(value) || isRgbValue(value);
-
-  return isObject && !isColorValue && value.type === "VARIABLE_ALIAS";
-}
-
-function getVariableName(name: Variable["name"]) {
-  return `--${name.split("/").join("-").toLowerCase()}`;
-}
-
-function createThemeObject(
-  paths: string[],
-  value: string,
-  existingObject: any = {}
-): any {
-  if (paths.length === 0) {
-    return value;
-  }
-
-  const key = paths[0];
-  const remainingPaths = paths.slice(1);
-
-  // If the key already exists in the existingObject, merge the new nested
-  // object with it.
-  if (existingObject.hasOwnProperty(key)) {
-    existingObject[key] = createThemeObject(
-      remainingPaths,
-      value,
-      existingObject[key]
-    );
-  } else {
-    existingObject[key] = createThemeObject(remainingPaths, value);
-  }
-
-  return existingObject;
 }

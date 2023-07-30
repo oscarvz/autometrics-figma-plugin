@@ -2,11 +2,11 @@
   "name": "autometrics-figma-plugin",
   "id": "1266668751677769064",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/plugin.js",
   "capabilities": ["inspect"],
   "enableProposedApi": false,
   "editorType": ["dev"],
-  "ui": "ui.html",
+  "ui": "src/ui/index.html",
   "networkAccess": {
     "allowedDomains": ["none"]
   }
