@@ -14,7 +14,7 @@ be used for a typed theming system for CSS-in-JS libraries like
 - [x] generate CSS variables
 - [x] generate JS theme object
 - [x] add UI to extract CSS
-- [ ] add UI to extract JS
+- [x] add UI to extract JS
 - [ ] generate JS file that can be downloaded (needs research)
 - [ ] styling for the plugin
 - [ ] refactorrr & type fixes
