@@ -129,7 +129,7 @@ export function addToThemeObject(
   existingObject: any = {},
 ): any {
   if (paths.length === 0) {
-    return value;
+    return `var(${value})`;
   }
 
   const key = paths[0];
