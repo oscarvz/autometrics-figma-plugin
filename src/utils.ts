@@ -1,24 +1,25 @@
-import { isRgbaValue, isVariableAlias } from "./typeGuards";
+import { isRgbaValue, isVariableAlias } from './typeGuards';
 
 export function handleCollections(
-  variableCollections: Array<VariableCollection>
+  variableCollections: Array<VariableCollection>,
 ) {
   const atomicCssVariables: Array<string> = [];
   const semanticCssVariablesLight: Array<string> = [];
   const semanticCssVariablesDark: Array<string> = [];
 
   const primitiveVariableReferences: Array<{
-    id: Variable["id"];
+    id: Variable['id'];
     value: string;
   }> = [];
 
   const themeObject = {};
 
+  // TODO: Refactor
   for (const collection of variableCollections) {
     const { modes, name, variableIds } = collection;
 
     // ATOMIC VARIABLES, has only one mode
-    if (name === "Primitives") {
+    if (name === 'Primitives') {
       for (const variableId of variableIds) {
         const variable = figma.variables.getVariableById(variableId);
         if (!variable) {
@@ -28,7 +29,7 @@ export function handleCollections(
         const { name, id, valuesByMode } = variable;
         const variableName = getVariableName(name);
 
-        const paths = name.split("/");
+        const paths = name.split('/');
         addToThemeObject(paths, variableName, themeObject);
 
         const [value] = Object.values(valuesByMode);
@@ -46,7 +47,8 @@ export function handleCollections(
       }
     }
 
-    if (name === "Tokens") {
+    // SEMANTIC VARIABLES, has multiple modes
+    if (name === 'Tokens') {
       for (const mode of modes) {
         for (const variableId of variableIds) {
           const variable = figma.variables.getVariableById(variableId);
@@ -54,7 +56,7 @@ export function handleCollections(
             continue;
           }
 
-          const isColorValue = variable.resolvedType === "COLOR";
+          const isColorValue = variable.resolvedType === 'COLOR';
           if (!isColorValue) {
             continue;
           }
@@ -63,7 +65,7 @@ export function handleCollections(
           const variableName = getVariableName(name);
           const variableValue = valuesByMode[mode.modeId];
 
-          const paths = name.split("/");
+          const paths = name.split('/');
           addToThemeObject(paths, variableName, themeObject);
 
           const isAlias = isVariableAlias(variableValue);
@@ -71,21 +73,21 @@ export function handleCollections(
             continue;
           }
 
-          const matchedToken = primitiveVariableReferences.find((reference) => {
-            return reference.id === variableValue.id;
-          });
+          const matchedToken = primitiveVariableReferences.find(
+            (reference) => reference.id === variableValue.id,
+          );
           if (!matchedToken) {
             continue;
           }
 
-          const semanticVariabl = `${variableName}: var(${matchedToken.value})`;
+          const semanticVariable = `${variableName}: var(${matchedToken.value})`;
 
-          if (mode.name === "Light") {
-            semanticCssVariablesLight.push(semanticVariabl);
+          if (mode.name === 'Light') {
+            semanticCssVariablesLight.push(semanticVariable);
           }
 
-          if (mode.name === "Dark") {
-            semanticCssVariablesDark.push(semanticVariabl);
+          if (mode.name === 'Dark') {
+            semanticCssVariablesDark.push(semanticVariable);
           }
         }
       }
@@ -105,26 +107,26 @@ export function rgbToHex(value: RGBA) {
   if (a !== 1) {
     return `rgba(${[r, g, b]
       .map((n) => Math.round(n * 255))
-      .join(", ")}, ${a.toFixed(4)})`;
+      .join(', ')}, ${a.toFixed(4)})`;
   }
 
   const toHex = (value: number) => {
     const hex = Math.round(value * 255).toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
+    return hex.length === 1 ? '0' + hex : hex;
   };
 
-  const hex = [toHex(r), toHex(g), toHex(b)].join("");
+  const hex = [toHex(r), toHex(g), toHex(b)].join('');
   return `#${hex}`;
 }
 
-export function getVariableName(name: Variable["name"]) {
-  return `--${name.split("/").join("-").toLowerCase()}`;
+export function getVariableName(name: Variable['name']) {
+  return `--${name.split('/').join('-').toLowerCase()}`;
 }
 
 export function addToThemeObject(
   paths: string[],
   value: string,
-  existingObject: any = {}
+  existingObject: any = {},
 ): any {
   if (paths.length === 0) {
     return value;
@@ -139,7 +141,7 @@ export function addToThemeObject(
     existingObject[key] = addToThemeObject(
       remainingPaths,
       value,
-      existingObject[key]
+      existingObject[key],
     );
   } else {
     existingObject[key] = addToThemeObject(remainingPaths, value);
@@ -148,18 +150,13 @@ export function addToThemeObject(
   return existingObject;
 }
 
-function sortArray(array: Array<string>) {
-  return array.sort((a, b) => (a > b ? 1 : -1));
-}
-
 export function generateCssFile({
   atomicCssVariables,
   semanticCssVariablesLight,
   semanticCssVariablesDark,
-}: Omit<ReturnType<typeof handleCollections>, "themeObject">) {
-  // TODO (Oscar): use for JS file too
-  const closeFile = "}\n";
-  let cssFile = ":root {\n";
+}: Omit<ReturnType<typeof handleCollections>, 'themeObject'>) {
+  const close = '}\n';
+  let cssFile = ':root {\n';
 
   // Add variables to file, for both atomic and semantic light variables
   for (const variable of atomicCssVariables) {
@@ -178,28 +175,12 @@ export function generateCssFile({
     cssFile += `    ${variable}\n`;
   }
 
-  cssFile += `  ${closeFile}`;
-
-  // Close file
-  cssFile += closeFile;
+  cssFile += `  ${close}`;
+  cssFile += close;
 
   return cssFile;
 }
 
-export function generateJsFile(
-  themeObject: Pick<
-    ReturnType<typeof handleCollections>,
-    "themeObject"
-  >["themeObject"]
-) {
-  const closeFile = "};\n";
-  let jsFile = "export const theme = {\n";
-
-  for (const [key, value] of Object.entries(themeObject)) {
-    jsFile += `  ${key}: ${value},\n`;
-  }
-
-  jsFile += closeFile;
-
-  return jsFile;
+function sortArray(array: Array<string>) {
+  return array.sort((a, b) => (a > b ? 1 : -1));
 }

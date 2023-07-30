@@ -1,4 +1,4 @@
-import { generateCssFile, handleCollections } from "./utils";
+import { generateCssFile, handleCollections } from './utils';
 
 console.clear();
 
@@ -17,17 +17,17 @@ const cssFile = generateCssFile({
   semanticCssVariablesLight,
 });
 
-const jsFile = "const theme = " + JSON.stringify(themeObject, null, 2);
+const jsFile = 'const theme = ' + JSON.stringify(themeObject, null, 2);
 
 figma.showUI(__html__);
 
 figma.ui.postMessage({
   css: {
-    id: "css-file",
+    id: 'css-file',
     payload: cssFile,
   },
   js: {
-    id: "js-file",
+    id: 'js-file',
     payload: jsFile,
   },
 });
