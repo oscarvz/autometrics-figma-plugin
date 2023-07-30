@@ -29,7 +29,7 @@ export function handleCollections() {
         const { name, id, valuesByMode } = variable;
         const variableName = getVariableName(name);
 
-        const paths = name.split('/');
+        const paths = name.split(/[\/-]/);
         addToThemeObject(paths, variableName, themeObject);
 
         const [value] = Object.values(valuesByMode);
@@ -65,7 +65,7 @@ export function handleCollections() {
           const variableName = getVariableName(name);
           const variableValue = valuesByMode[mode.modeId];
 
-          const paths = name.split('/');
+          const paths = name.split(/[\/-]/);
           addToThemeObject(paths, variableName, themeObject);
 
           const isAlias = isVariableAlias(variableValue);
@@ -124,31 +124,51 @@ export function getVariableName(name: Variable['name']) {
 }
 
 export function addToThemeObject(
-  paths: string[],
+  paths: Array<string>,
   value: string,
-  existingObject: any = {},
-): any {
+  currentObject: any = {} /* TODO: fix any */,
+): {} | string {
   if (paths.length === 0) {
     return `var(${value})`;
   }
 
-  const key = paths[0];
+  const [currentKey, nextKey, ...remainingKeys] = paths;
   const remainingPaths = paths.slice(1);
 
-  // If the key already exists in the existingObject, merge the new nested
-  // object with it.
-  if (existingObject.hasOwnProperty(key)) {
-    existingObject[key] = addToThemeObject(
-      remainingPaths,
-      value,
-      existingObject[key],
-    );
+  // If the key already exists in the currentObject, merge the new nested object
+  // with it.
+  if (currentObject.hasOwnProperty(currentKey)) {
+    if (typeof currentObject[currentKey] === 'object') {
+      currentObject[currentKey] = addToThemeObject(
+        remainingPaths,
+        value,
+        currentObject[currentKey],
+      );
 
-    return existingObject;
+      return currentObject;
+    }
+
+    // HACK: If the key already exists in the currentObject but the value is a
+    // string, this means we have a duplicate key which we're solving by merging
+    // the current one with the next one (for instance: if we can already have
+    // bg: "#FFF" but another key is bg-subtle, we can't add `subtle` as a
+    // separate key so we have to create a new one called "bg-subtle").
+    // TODO: Update documentation & add convention guidelines.
+    if (typeof currentObject[currentKey] === 'string' && nextKey) {
+      currentObject = Object.assign(currentObject, {
+        [`${currentKey}-${nextKey}`]: addToThemeObject(
+          remainingKeys,
+          value,
+          currentObject[`${currentKey}-${nextKey}`],
+        ),
+      });
+
+      return currentObject;
+    }
   }
 
-  existingObject[key] = addToThemeObject(remainingPaths, value);
-  return existingObject;
+  currentObject[currentKey] = addToThemeObject(remainingPaths, value);
+  return currentObject;
 }
 
 export function generateCssFile({
@@ -160,17 +180,16 @@ export function generateCssFile({
   let cssFile = ':root {\n';
 
   // Add variables to file, for both atomic and semantic light variables
-  for (const variable of atomicCssVariables) {
-    cssFile += `  ${variable}\n`;
-  }
-
-  for (const variable of semanticCssVariablesLight) {
+  for (const variable of [
+    ...atomicCssVariables,
+    ...semanticCssVariablesLight,
+  ]) {
     cssFile += `  ${variable}\n`;
   }
 
   // Indent & add dark theme selector & variables
-  const darkThemeSelector = "\n  body[data-theme='dark'] {\n";
-  cssFile += darkThemeSelector;
+  const darkThemeMediaSelector = '\n  @media (prefers-color-scheme: dark) {\n';
+  cssFile += darkThemeMediaSelector;
 
   for (const variable of semanticCssVariablesDark) {
     cssFile += `    ${variable}\n`;
@@ -189,10 +208,10 @@ export function generateJsFile(
   return removeQuotesFromObjectKeys(jsContent);
 }
 
-function sortArray(array: Array<string>) {
-  return array.sort((a, b) => (a > b ? 1 : -1));
+function removeQuotesFromObjectKeys(jsonString: string) {
+  return jsonString.replace(/"([^(")"]+)":/g, '$1:');
 }
 
-export function removeQuotesFromObjectKeys(jsonString: string) {
-  return jsonString.replace(/"([^(")"]+)":/g, '$1:');
+function sortArray(array: Array<string>) {
+  return array.sort((a, b) => (a > b ? 1 : -1));
 }
