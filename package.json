@@ -1,16 +1,20 @@
 {
   "name": "autometrics-figma-plugin",
   "version": "1.0.0",
-  "description": "Your Figma Plugin",
-  "main": "code.js",
+  "description": "Figma plugin generating CSS & JS",
+  "main": "dist/plugin.js",
+  "source": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "watch": "yarn build -- --watch"
+    "build": "parcel build",
+    "watch": "parcel watch"
   },
-  "author": "",
-  "license": "",
+  "author": "oscarvz <oscar@fiberplane.com>",
+  "license": "MIT",
   "devDependencies": {
     "@figma/plugin-typings": "*",
+    "parcel": "^2.9.3",
     "typescript": "*"
-  }
+  },
+  "repository": "git@github.com:oscarvz/autometrics-figma-plugin.git",
+  "private": false
 }
