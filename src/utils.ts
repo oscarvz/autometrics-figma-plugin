@@ -1,8 +1,8 @@
 import { isRgbaValue, isVariableAlias } from './typeGuards';
 
-export function handleCollections(
-  variableCollections: Array<VariableCollection>,
-) {
+export function handleCollections() {
+  const variableCollections = figma.variables.getLocalVariableCollections();
+
   const atomicCssVariables: Array<string> = [];
   const semanticCssVariablesLight: Array<string> = [];
   const semanticCssVariablesDark: Array<string> = [];
@@ -36,8 +36,8 @@ export function handleCollections(
         const isValidRgba = isRgbaValue(value);
 
         if (isValidRgba) {
-          const hex = rgbToHex(value);
-          atomicCssVariables.push(`${variableName}: ${hex};`);
+          const colorValue = getColorValue(value);
+          atomicCssVariables.push(`${variableName}: ${colorValue};`);
         }
 
         primitiveVariableReferences.push({
@@ -102,12 +102,12 @@ export function handleCollections(
   };
 }
 
-export function rgbToHex(value: RGBA) {
+export function getColorValue(value: RGBA) {
   const { r, g, b, a } = value;
   if (a !== 1) {
-    return `rgba(${[r, g, b]
-      .map((n) => Math.round(n * 255))
-      .join(', ')}, ${a.toFixed(4)})`;
+    return `rgb(${[r, g, b].map((n) => Math.round(n * 255)).join(' ')} / ${(
+      a * 100
+    ).toFixed(0)}%)`;
   }
 
   const toHex = (value: number) => {
@@ -143,10 +143,11 @@ export function addToThemeObject(
       value,
       existingObject[key],
     );
-  } else {
-    existingObject[key] = addToThemeObject(remainingPaths, value);
+
+    return existingObject;
   }
 
+  existingObject[key] = addToThemeObject(remainingPaths, value);
   return existingObject;
 }
 
@@ -181,6 +182,17 @@ export function generateCssFile({
   return cssFile;
 }
 
+export function generateJsFile(
+  themeObject: ReturnType<typeof handleCollections>['themeObject'],
+) {
+  const jsContent = 'const theme = ' + JSON.stringify(themeObject, null, 2);
+  return removeQuotesFromObjectKeys(jsContent);
+}
+
 function sortArray(array: Array<string>) {
   return array.sort((a, b) => (a > b ? 1 : -1));
+}
+
+export function removeQuotesFromObjectKeys(jsonString: string) {
+  return jsonString.replace(/"([^(")"]+)":/g, '$1:');
 }

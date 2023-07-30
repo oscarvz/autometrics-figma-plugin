@@ -1,15 +1,13 @@
-import { generateCssFile, handleCollections } from './utils';
+import { generateCssFile, generateJsFile, handleCollections } from './utils';
 
 console.clear();
-
-const variableCollections = figma.variables.getLocalVariableCollections();
 
 const {
   atomicCssVariables,
   semanticCssVariablesDark,
   semanticCssVariablesLight,
   themeObject,
-} = handleCollections(variableCollections);
+} = handleCollections();
 
 const cssFile = generateCssFile({
   atomicCssVariables,
@@ -17,7 +15,7 @@ const cssFile = generateCssFile({
   semanticCssVariablesLight,
 });
 
-const jsFile = 'const theme = ' + JSON.stringify(themeObject, null, 2);
+const jsFile = generateJsFile(themeObject);
 
 figma.showUI(__html__);
 
