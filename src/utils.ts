@@ -1,8 +1,12 @@
 import { SPLIT_BY } from './constants';
+import { isRgbaValue } from './typeGuards';
 
-export function getColorValue(value: RGBA) {
-  const { r, g, b, a } = value;
-  if (a !== 1) {
+export function getColorValue(value: RGBA | RGB) {
+  const { r, g, b } = value;
+
+  const isRgba = isRgbaValue(value);
+  if (isRgba && value.a !== 1) {
+    const { a } = value;
     return `rgb(${[r, g, b].map((n) => Math.round(n * 255)).join(' ')} / ${(
       a * 100
     ).toFixed(0)}%)`;
@@ -10,7 +14,7 @@ export function getColorValue(value: RGBA) {
 
   const toHex = (value: number) => {
     const hex = Math.round(value * 255).toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
+    return hex.length === 1 ? `0${hex}` : hex;
   };
 
   const hex = [toHex(r), toHex(g), toHex(b)].join('');
@@ -109,11 +113,24 @@ export function generateCssFile({
   return cssFile;
 }
 
-export function generateJsFile<T extends {}>(themeObject: T) {
-  const jsContent = 'const theme = ' + JSON.stringify(themeObject, null, 2);
+export function generateJsFile(themeObject: {}) {
+  const jsContent = `const theme = ${JSON.stringify(themeObject, null, 2)};\n`;
   return removeQuotesFromObjectKeys(jsContent);
 }
 
+/**
+ * Removes quotes from object keys in JSON, except for keys that contain a dash
+ * or space.
+ */
 function removeQuotesFromObjectKeys(jsonString: string) {
-  return jsonString.replace(/"([^(")"]+)":/g, '$1:');
+  return jsonString.replace(/"([^"-\s]+)":/g, '$1:');
+}
+
+/**
+ * Takes a Set containing string values and returns a sorted array.
+ * @param set
+ * @returns Array
+ */
+export function getSortedArrayFromSet(set: Set<string>) {
+  return Array.from(set).sort();
 }
