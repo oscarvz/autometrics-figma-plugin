@@ -1,4 +1,5 @@
-import { generateCssFile, generateJsFile, handleCollections } from './utils';
+import { handleCollections } from './plugin';
+import { generateCssFile, generateJsFile } from './utils';
 
 console.clear();
 
