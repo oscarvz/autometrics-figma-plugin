@@ -1,22 +1,8 @@
-import { handleCollections } from './plugin';
-import { generateCssFile, generateJsFile } from './utils';
+import { generateFiles } from './plugin';
+
+const { cssFile, jsFile } = generateFiles();
 
 console.clear();
-
-const {
-  atomicCssVariables,
-  semanticCssVariablesDark,
-  semanticCssVariablesDefault,
-  themeObject,
-} = handleCollections();
-
-const cssFile = generateCssFile({
-  atomicCssVariables,
-  semanticCssVariablesDark,
-  semanticCssVariablesDefault,
-});
-
-const jsFile = generateJsFile(themeObject);
 
 figma.showUI(__html__);
 

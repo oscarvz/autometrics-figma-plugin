@@ -1,4 +1,3 @@
-import { handleCollections } from './plugin';
 import { SPLIT_BY } from './constants';
 
 export function getColorValue(value: RGBA) {
@@ -70,11 +69,17 @@ export function addToThemeObject(
   return currentObject;
 }
 
+type GenerateCssFileArguments = {
+  atomicCssVariables: Array<string>;
+  semanticCssVariablesDefault: Array<string>;
+  semanticCssVariablesDark: Array<string>;
+};
+
 export function generateCssFile({
   atomicCssVariables,
   semanticCssVariablesDefault,
   semanticCssVariablesDark,
-}: Omit<ReturnType<typeof handleCollections>, 'themeObject'>) {
+}: GenerateCssFileArguments) {
   const close = '}\n';
   let cssFile = ':root {\n';
 
@@ -104,9 +109,7 @@ export function generateCssFile({
   return cssFile;
 }
 
-export function generateJsFile(
-  themeObject: ReturnType<typeof handleCollections>['themeObject'],
-) {
+export function generateJsFile<T extends {}>(themeObject: T) {
   const jsContent = 'const theme = ' + JSON.stringify(themeObject, null, 2);
   return removeQuotesFromObjectKeys(jsContent);
 }

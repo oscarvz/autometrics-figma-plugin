@@ -1,8 +1,14 @@
-import { addToThemeObject, getColorValue, getCssVariableName } from './utils';
+import {
+  addToThemeObject,
+  generateCssFile,
+  generateJsFile,
+  getColorValue,
+  getCssVariableName,
+} from './utils';
 import { SPLIT_BY } from './constants';
 import { isRgbaValue, isVariableAlias } from './typeGuards';
 
-export function handleCollections() {
+export function generateFiles() {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
   const atomicCssVariables = new Set<string>();
@@ -44,7 +50,7 @@ export function handleCollections() {
 
           const semanticVariable = `${cssVariableName}: var(${matchedToken})`;
 
-          if (collectionMode.name === 'Dark') {
+          if (collectionMode.name.toLowerCase() === 'dark') {
             semanticCssVariablesDark.add(semanticVariable);
             continue;
           }
@@ -80,10 +86,16 @@ export function handleCollections() {
     }
   }
 
-  return {
+  const cssFile = generateCssFile({
     atomicCssVariables: Array.from(atomicCssVariables).sort(),
     semanticCssVariablesDefault: Array.from(semanticCssVariablesDefault).sort(),
     semanticCssVariablesDark: Array.from(semanticCssVariablesDark).sort(),
-    themeObject,
+  });
+
+  const jsFile = generateJsFile(themeObject);
+
+  return {
+    cssFile,
+    jsFile,
   };
 }
