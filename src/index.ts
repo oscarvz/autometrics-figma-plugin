@@ -6,14 +6,14 @@ console.clear();
 const {
   atomicCssVariables,
   semanticCssVariablesDark,
-  semanticCssVariablesLight,
+  semanticCssVariablesDefault,
   themeObject,
 } = handleCollections();
 
 const cssFile = generateCssFile({
   atomicCssVariables,
   semanticCssVariablesDark,
-  semanticCssVariablesLight,
+  semanticCssVariablesDefault,
 });
 
 const jsFile = generateJsFile(themeObject);

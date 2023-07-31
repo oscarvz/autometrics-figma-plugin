@@ -1,4 +1,5 @@
-import { handleCollections } from "./plugin";
+import { handleCollections } from './plugin';
+import { SPLIT_BY } from './constants';
 
 export function getColorValue(value: RGBA) {
   const { r, g, b, a } = value;
@@ -18,7 +19,7 @@ export function getColorValue(value: RGBA) {
 }
 
 export function getCssVariableName(name: Variable['name']) {
-  return `--${name.split(/[\/-]/).join('-').toLowerCase()}`;
+  return `--${name.split(SPLIT_BY).join('-').toLowerCase()}`;
 }
 
 export function addToThemeObject(
@@ -71,7 +72,7 @@ export function addToThemeObject(
 
 export function generateCssFile({
   atomicCssVariables,
-  semanticCssVariablesLight,
+  semanticCssVariablesDefault,
   semanticCssVariablesDark,
 }: Omit<ReturnType<typeof handleCollections>, 'themeObject'>) {
   const close = '}\n';
@@ -80,7 +81,7 @@ export function generateCssFile({
   // Add variables to file, for both atomic and semantic light variables
   for (const variable of [
     ...atomicCssVariables,
-    ...semanticCssVariablesLight,
+    ...semanticCssVariablesDefault,
   ]) {
     cssFile += `  ${variable}\n`;
   }
@@ -112,8 +113,4 @@ export function generateJsFile(
 
 function removeQuotesFromObjectKeys(jsonString: string) {
   return jsonString.replace(/"([^(")"]+)":/g, '$1:');
-}
-
-export function sortArray(array: Array<string>) {
-  return array.sort((a, b) => (a > b ? 1 : -1));
 }
