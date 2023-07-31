@@ -1,12 +1,13 @@
+import { isRgbValue, isRgbaValue, isVariableAlias } from './typeGuards';
+import { SPLIT_BY } from './constants';
 import {
   addToThemeObject,
   generateCssFile,
   generateJsFile,
   getColorValue,
   getCssVariableName,
+  getSortedArrayFromSet,
 } from './utils';
-import { SPLIT_BY } from './constants';
-import { isRgbaValue, isVariableAlias } from './typeGuards';
 
 export function generateFiles() {
   const variableCollections = figma.variables.getLocalVariableCollections();
@@ -14,9 +15,7 @@ export function generateFiles() {
   const atomicCssVariables = new Set<string>();
   const semanticCssVariablesDefault = new Set<string>();
   const semanticCssVariablesDark = new Set<string>();
-
   const atomicVariableReferences = new Map<Variable['id'], string>();
-
   const themeObject = {};
 
   // TODO: Refactor (I heard you liked for loops, so I put for loops inside
@@ -67,7 +66,9 @@ export function generateFiles() {
           }
           case 'COLOR': {
             const isValidRgba = isRgbaValue(modeValue);
-            if (isValidRgba) {
+            const isValidRgb = isRgbValue(modeValue);
+
+            if (isValidRgba || isValidRgb) {
               const colorValue = getColorValue(modeValue);
               const cssVariable = `${cssVariableName}: ${colorValue};`;
               atomicCssVariables.add(cssVariable);
@@ -75,7 +76,6 @@ export function generateFiles() {
             break;
           }
           case 'FLOAT': {
-            // TODO: get unit from variable
             const cssVariable = `${cssVariableName}: ${modeValue}px;`;
             atomicCssVariables.add(cssVariable);
           }
@@ -87,9 +87,11 @@ export function generateFiles() {
   }
 
   const cssFile = generateCssFile({
-    atomicCssVariables: Array.from(atomicCssVariables).sort(),
-    semanticCssVariablesDefault: Array.from(semanticCssVariablesDefault).sort(),
-    semanticCssVariablesDark: Array.from(semanticCssVariablesDark).sort(),
+    atomicCssVariables: getSortedArrayFromSet(atomicCssVariables),
+    semanticCssVariablesDefault: getSortedArrayFromSet(
+      semanticCssVariablesDefault,
+    ),
+    semanticCssVariablesDark: getSortedArrayFromSet(semanticCssVariablesDark),
   });
 
   const jsFile = generateJsFile(themeObject);
