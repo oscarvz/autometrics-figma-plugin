@@ -30,31 +30,7 @@ export function handleCollections() {
         addToThemeObject(paths, cssVariableName, themeObject);
 
         for (const modeValue of Object.values(valuesByMode)) {
-          const isValidRgba = isRgbaValue(modeValue);
           const isAlias = isVariableAlias(modeValue);
-
-          const isBoolean = variable.resolvedType === 'BOOLEAN';
-          const isColor = variable.resolvedType === 'COLOR';
-          const isNumber = variable.resolvedType === 'FLOAT';
-          const isString = variable.resolvedType === 'STRING';
-
-          if (isColor && isValidRgba) {
-            const colorValue = getColorValue(modeValue);
-            atomicCssVariables.push(`${cssVariableName}: ${colorValue};`);
-          }
-
-          if (isNumber) {
-            // TODO: get unit from variable
-            atomicCssVariables.push(`${cssVariableName}: ${modeValue}px;`);
-          }
-
-          if (isBoolean || isString) {
-            atomicCssVariables.push(`${cssVariableName}: ${modeValue};`);
-          }
-
-          if (!isAlias) {
-            atomicVariableReferences.set(id, cssVariableName);
-          }
 
           if (isAlias) {
             // TODO: Add fallback conditional with
@@ -73,7 +49,26 @@ export function handleCollections() {
             if (collectionMode.name === 'Dark') {
               semanticCssVariablesDark.push(semanticVariable);
             }
+
+            continue;
           }
+
+          switch (variable.resolvedType) {
+            case 'BOOLEAN' || 'STRING':
+              atomicCssVariables.push(`${cssVariableName}: ${modeValue};`);
+              break;
+            case 'COLOR':
+              const isValidRgba = isRgbaValue(modeValue);
+              if (isValidRgba) {
+                const colorValue = getColorValue(modeValue);
+                atomicCssVariables.push(`${cssVariableName}: ${colorValue};`);
+              }
+              break;
+            case 'FLOAT':
+              atomicCssVariables.push(`${cssVariableName}: ${modeValue}px;`);
+          }
+
+          atomicVariableReferences.set(id, cssVariableName);
         }
       }
     }
@@ -105,7 +100,7 @@ function getColorValue(value: RGBA) {
 }
 
 function getCssVariableName(name: Variable['name']) {
-  return `--${name.split('/').join('-').toLowerCase()}`;
+  return `--${name.split(/[\/-]/).join('-').toLowerCase()}`;
 }
 
 function addToThemeObject(
