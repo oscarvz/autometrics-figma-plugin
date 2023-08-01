@@ -18,5 +18,8 @@ be used for a typed theming system for CSS-in-JS libraries like
 - [ ] generate JS file that can be downloaded (needs research)
 - [ ] styling for the plugin
 - [ ] refactorrr & type fixes
+- [x] handle text styles
+- [ ] handle effect styles
+- [ ] handle paint styles
 - [ ] ...
 - [ ] profit
