@@ -22,7 +22,8 @@ export function getColorValue(value: RGBA | RGB) {
 }
 
 export function getCssVariableName(name: Variable['name']) {
-  return `--${name.split(SPLIT_BY).join('-').toLowerCase()}`;
+  const splitName = getSplitName(name);
+  return `--${splitName.join('-').toLowerCase()}`;
 }
 
 export function addToThemeObject(
@@ -133,4 +134,8 @@ function removeQuotesFromObjectKeys(jsonString: string) {
  */
 export function getSortedArrayFromSet(set: Set<string>) {
   return Array.from(set).sort();
+}
+
+export function getSplitName(name: string) {
+  return name.toLowerCase().split(SPLIT_BY);
 }
