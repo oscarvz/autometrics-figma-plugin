@@ -22,7 +22,8 @@ export function getColorValue(value: RGBA | RGB) {
 }
 
 export function getCssVariableName(name: Variable['name']) {
-  return `--${name.split(SPLIT_BY).join('-').toLowerCase()}`;
+  const splitName = getSplitName(name);
+  return `--${splitName.join('-').toLowerCase()}`;
 }
 
 export function addToThemeObject(
@@ -77,12 +78,14 @@ type GenerateCssFileArguments = {
   atomicCssVariables: Array<string>;
   semanticCssVariablesDefault: Array<string>;
   semanticCssVariablesDark: Array<string>;
+  textCssVariables: Array<string>;
 };
 
 export function generateCssFile({
   atomicCssVariables,
   semanticCssVariablesDefault,
   semanticCssVariablesDark,
+  textCssVariables,
 }: GenerateCssFileArguments) {
   const close = '}\n';
   let cssFile = ':root {\n';
@@ -91,6 +94,7 @@ export function generateCssFile({
   for (const variable of [
     ...atomicCssVariables,
     ...semanticCssVariablesDefault,
+    ...textCssVariables,
   ]) {
     cssFile += `  ${variable}\n`;
   }
@@ -133,4 +137,8 @@ function removeQuotesFromObjectKeys(jsonString: string) {
  */
 export function getSortedArrayFromSet(set: Set<string>) {
   return Array.from(set).sort();
+}
+
+export function getSplitName(name: string) {
+  return name.toLowerCase().split(SPLIT_BY);
 }
