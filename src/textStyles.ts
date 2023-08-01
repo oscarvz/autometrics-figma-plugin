@@ -21,6 +21,7 @@ export function generateTextVariables(themeObject: {}) {
       lineHeightValue = `${lineHeight.value}${unit}`;
     }
 
+    // TODO: fix hardcoded font style
     const cssShorthandValue = `normal ${fontSize}px${
       lineHeightValue ? ` / ${lineHeightValue}` : ''
     } ${fontName.family}`;
