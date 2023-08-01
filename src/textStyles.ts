@@ -1,13 +1,15 @@
-import { SPLIT_BY } from './constants';
 import { isLineHeightValue } from './typeGuards';
-import { addToThemeObject, getCssVariableName, getSplitName } from './utils';
+import {
+  addToThemeObject,
+  getCssVariableName,
+  getSortedArrayFromSet,
+  getSplitName,
+} from './utils';
 
-export function generateTextVariables() {
+export function generateTextVariables(themeObject: {}) {
   const textStyles = figma.getLocalTextStyles();
 
-  const atomicCssVariables = new Set<string>();
-
-  const theme = {};
+  const textCssVariables = new Set<string>();
 
   for (const textStyle of textStyles) {
     const { fontName, fontSize, lineHeight, name } = textStyle;
@@ -26,9 +28,11 @@ export function generateTextVariables() {
     const cssVariableName = getCssVariableName(name);
     const atomicCssVariable = `${cssVariableName}: ${cssShorthandValue};`;
 
-    atomicCssVariables.add(atomicCssVariable);
+    textCssVariables.add(atomicCssVariable);
 
     const paths = getSplitName(name);
-    addToThemeObject(paths, cssVariableName, theme);
+    addToThemeObject(paths, cssVariableName, themeObject);
   }
+
+  return { textCssVariables: getSortedArrayFromSet(textCssVariables) };
 }

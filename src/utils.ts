@@ -78,12 +78,14 @@ type GenerateCssFileArguments = {
   atomicCssVariables: Array<string>;
   semanticCssVariablesDefault: Array<string>;
   semanticCssVariablesDark: Array<string>;
+  textCssVariables: Array<string>;
 };
 
 export function generateCssFile({
   atomicCssVariables,
   semanticCssVariablesDefault,
   semanticCssVariablesDark,
+  textCssVariables,
 }: GenerateCssFileArguments) {
   const close = '}\n';
   let cssFile = ':root {\n';
@@ -92,6 +94,7 @@ export function generateCssFile({
   for (const variable of [
     ...atomicCssVariables,
     ...semanticCssVariablesDefault,
+    ...textCssVariables,
   ]) {
     cssFile += `  ${variable}\n`;
   }

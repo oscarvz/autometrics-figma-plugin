@@ -1,10 +1,10 @@
-import { SPLIT_BY } from './constants';
 import { isVariableAlias, isRgbaValue, isRgbValue } from './typeGuards';
 import {
   getCssVariableName,
   addToThemeObject,
   getColorValue,
   getSortedArrayFromSet,
+  getSplitName,
 } from './utils';
 
 export function generateTokenVariables(themeObject: {}) {
@@ -28,15 +28,13 @@ export function generateTokenVariables(themeObject: {}) {
         const { name, id, valuesByMode } = variable;
         const cssVariableName = getCssVariableName(name);
 
-        const paths = name.split(SPLIT_BY);
+        const paths = getSplitName(name);
         addToThemeObject(paths, cssVariableName, themeObject);
 
         const modeValue = valuesByMode[collectionMode.modeId];
 
         const isAlias = isVariableAlias(modeValue);
         if (isAlias) {
-          // TODO: Add fallback conditional with
-          // figma.variables.getVariableById
           const matchedToken = atomicVariableReferences.get(modeValue.id);
           if (!matchedToken) {
             continue;
