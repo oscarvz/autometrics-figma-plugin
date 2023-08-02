@@ -4,6 +4,9 @@
     "lib": ["ESNext"],
     "moduleResolution": "NodeNext",
     "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
     "typeRoots": ["./node_modules/@types", "./node_modules/@figma"]
-  }
+  },
+  "include": ["src/**/*"]
 }

@@ -2,17 +2,22 @@
   "name": "figma-plugin",
   "version": "1.0.0",
   "description": "Figma plugin generating CSS & JS",
-  "main": "dist/plugin.js",
-  "source": "src/index.ts",
   "scripts": {
-    "build": "parcel build",
-    "watch": "parcel watch"
+    "build": "tsup --minify",
+    "watch": "tsup --watch",
+    "lint": "eslint --ext .ts ./src",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "author": "oscarvz <oscar@fiberplane.com>",
   "license": "MIT",
   "devDependencies": {
     "@figma/plugin-typings": "*",
-    "parcel": "^2.9.3",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.9.0",
+    "prettier": "^3.0.0",
+    "tsup": "^7.1.0",
     "typescript": "*"
   },
   "repository": "git@github.com:oscarvz/figma-plugin.git",

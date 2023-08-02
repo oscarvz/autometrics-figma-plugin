@@ -2,7 +2,7 @@
   "name": "figma-plugin",
   "id": "1266668751677769064",
   "api": "1.0.0",
-  "main": "dist/plugin.js",
+  "main": "dist/index.js",
   "capabilities": ["inspect"],
   "enableProposedApi": false,
   "editorType": ["dev"],

@@ -29,8 +29,10 @@ export function getCssVariableName(name: Variable['name']) {
 export function addToThemeObject(
   paths: Array<string>,
   value: string,
-  currentObject: any = {} /* TODO: fix any */,
-): {} | string {
+  // TODO: Fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  currentObject: any = {},
+): object | string {
   if (paths.length === 0) {
     return `var(${value})`;
   }
@@ -117,7 +119,7 @@ export function generateCssFile({
   return cssFile;
 }
 
-export function generateJsFile(themeObject: {}) {
+export function generateJsFile(themeObject: object) {
   const jsContent = `const theme = ${JSON.stringify(themeObject, null, 2)};\n`;
   return removeQuotesFromObjectKeys(jsContent);
 }

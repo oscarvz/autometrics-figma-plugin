@@ -1,1 +1,1 @@
-export const SPLIT_BY = /[\/-]/;
+export const SPLIT_BY = /[/-]/;
