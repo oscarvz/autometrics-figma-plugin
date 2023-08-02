@@ -2,17 +2,15 @@
   "name": "figma-plugin",
   "version": "1.0.0",
   "description": "Figma plugin generating CSS & JS",
-  "main": "dist/plugin.js",
-  "source": "src/index.ts",
   "scripts": {
-    "build": "parcel build",
-    "watch": "parcel watch"
+    "build": "tsup --minify",
+    "watch": "tsup --watch"
   },
   "author": "oscarvz <oscar@fiberplane.com>",
   "license": "MIT",
   "devDependencies": {
     "@figma/plugin-typings": "*",
-    "parcel": "^2.9.3",
+    "tsup": "^7.1.0",
     "typescript": "*"
   },
   "repository": "git@github.com:oscarvz/figma-plugin.git",
