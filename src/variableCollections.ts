@@ -7,7 +7,7 @@ import {
   getSplitName,
 } from './utils';
 
-export function generateTokenVariables(themeObject: {}) {
+export function generateTokenVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
   const atomicCssVariables = new Set<string>();

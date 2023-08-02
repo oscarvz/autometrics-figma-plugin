@@ -6,7 +6,7 @@ import {
   getSplitName,
 } from './utils';
 
-export function generateTextVariables(themeObject: {}) {
+export function generateTextVariables(themeObject: object) {
   const textStyles = figma.getLocalTextStyles();
 
   const textCssVariables = new Set<string>();
