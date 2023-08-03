@@ -14,20 +14,18 @@ export function generateEffects(themeObject: object) {
   const effectCssVariables = new Set<string>();
 
   for (const { effects, name } of effectStyles) {
-    const effect = effects[0];
-
-    if (isDropShadowEffect(effect)) {
-      const { color, offset, radius, spread } = effect;
-      const colorValue = getColorValue(color);
-
-      const boxShadowCssValue = `${offset.x}px ${offset.y}px ${radius}px ${spread}px ${colorValue}`;
-      const cssVariableName = getCssVariableName(name, { prefix: PREFIX });
-
-      effectCssVariables.add(`${cssVariableName}: ${boxShadowCssValue};`);
-
-      const paths = getSplitName(name);
-      const prefixedPaths = [PREFIX, ...paths];
-      addToThemeObject(prefixedPaths, cssVariableName, themeObject);
+    for (const effect of effects) {
+      switch (effect.type) {
+        case 'DROP_SHADOW':
+          handleDropShadowEffect(effect, name, effectCssVariables, themeObject);
+          break;
+        case 'INNER_SHADOW':
+          break;
+        case 'LAYER_BLUR':
+          break;
+        case 'BACKGROUND_BLUR':
+          break;
+      }
     }
   }
 
@@ -36,6 +34,21 @@ export function generateEffects(themeObject: object) {
   };
 }
 
-function isDropShadowEffect(effect: Effect): effect is DropShadowEffect {
-  return effect.type === 'DROP_SHADOW';
+function handleDropShadowEffect(
+  effect: DropShadowEffect,
+  name: EffectStyle['name'],
+  effectCssVariables: Set<string>,
+  themeObject: object,
+) {
+  const { color, offset, radius, spread } = effect;
+  const colorValue = getColorValue(color);
+
+  const boxShadowCssValue = `${offset.x}px ${offset.y}px ${radius}px ${spread}px ${colorValue}`;
+  const cssVariableName = getCssVariableName(name, { prefix: PREFIX });
+
+  effectCssVariables.add(`${cssVariableName}: ${boxShadowCssValue};`);
+
+  const paths = getSplitName(name);
+  const prefixedPaths = [PREFIX, ...paths];
+  addToThemeObject(prefixedPaths, cssVariableName, themeObject);
 }
