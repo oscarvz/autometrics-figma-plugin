@@ -6,6 +6,8 @@ import {
   getSplitName,
 } from './utils';
 
+const PREFIX = 'font';
+
 export function generateTextVariables(themeObject: object) {
   const textStyles = figma.getLocalTextStyles();
 
@@ -26,13 +28,14 @@ export function generateTextVariables(themeObject: object) {
       lineHeightValue ? ` / ${lineHeightValue}` : ''
     } ${fontName.family}`;
 
-    const cssVariableName = getCssVariableName(name);
+    const cssVariableName = getCssVariableName(name, { prefix: PREFIX });
     const atomicCssVariable = `${cssVariableName}: ${cssShorthandValue};`;
 
     textCssVariables.add(atomicCssVariable);
 
     const paths = getSplitName(name);
-    addToThemeObject(paths, cssVariableName, themeObject);
+    const prefixedPaths = [PREFIX, ...paths];
+    addToThemeObject(prefixedPaths, cssVariableName, themeObject);
   }
 
   return { textCssVariables: getSortedArrayFromSet(textCssVariables) };

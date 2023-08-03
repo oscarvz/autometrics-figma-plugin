@@ -7,7 +7,7 @@ import {
   getSplitName,
 } from './utils';
 
-export function generateTokenVariables(themeObject: object) {
+export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
   const atomicCssVariables = new Set<string>();
@@ -42,7 +42,7 @@ export function generateTokenVariables(themeObject: object) {
 
           const semanticVariable = `${cssVariableName}: var(${matchedToken});`;
 
-          if (collectionMode.name.toLowerCase() === 'dark') {
+          if (collectionMode.name.toLowerCase().includes('dark')) {
             semanticCssVariablesDark.add(semanticVariable);
             continue;
           }

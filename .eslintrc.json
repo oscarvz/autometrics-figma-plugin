@@ -9,9 +9,17 @@
     "prettier"
   ],
   "rules": {
-    "semi": "error",
-    "quotes": ["error", "single"],
+    "@typescript-eslint/no-unused-vars": "off" /* duplicate */,
     "no-prototype-builtins": "off",
-    "no-trailing-spaces": "error"
+    "no-trailing-spaces": "error",
+    "no-unused-vars": [
+      "warn",
+      {
+        "args": "after-used",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "quotes": ["error", "single"],
+    "semi": "error"
   }
 }

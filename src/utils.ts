@@ -21,9 +21,12 @@ export function getColorValue(value: RGBA | RGB) {
   return `#${hex}`;
 }
 
-export function getCssVariableName(name: Variable['name']) {
+export function getCssVariableName(
+  name: Variable['name'],
+  { prefix }: { prefix?: string } = {},
+) {
   const splitName = getSplitName(name);
-  return `--${splitName.join('-').toLowerCase()}`;
+  return `--${prefix ? `${prefix}-` : ''}${splitName.join('-').toLowerCase()}`;
 }
 
 export function addToThemeObject(
@@ -77,37 +80,33 @@ export function addToThemeObject(
 }
 
 type GenerateCssFileArguments = {
-  atomicCssVariables: Array<string>;
-  semanticCssVariablesDefault: Array<string>;
-  semanticCssVariablesDark: Array<string>;
-  textCssVariables: Array<string>;
+  baseCssVariables: Array<Array<string>>;
+  darkCssVariables?: Array<string>;
 };
 
+// Base variables: Array<Array<string>>
+// Dark override variables: Array<string>
 export function generateCssFile({
-  atomicCssVariables,
-  semanticCssVariablesDefault,
-  semanticCssVariablesDark,
-  textCssVariables,
+  baseCssVariables,
+  darkCssVariables = [],
 }: GenerateCssFileArguments) {
   const close = '}\n';
   let cssFile = ':root {\n';
 
+  const baseVariables = baseCssVariables.flatMap((variable) => variable);
+
   // Add variables to file, for both atomic and semantic light variables
-  for (const variable of [
-    ...atomicCssVariables,
-    ...semanticCssVariablesDefault,
-    ...textCssVariables,
-  ]) {
+  for (const variable of baseVariables) {
     cssFile += `  ${variable}\n`;
   }
 
-  if (semanticCssVariablesDark.length > 0) {
+  if (darkCssVariables.length > 0) {
     // Indent & add dark theme selector & variables
     const darkThemeMediaSelector =
       '\n  @media (prefers-color-scheme: dark) {\n';
     cssFile += darkThemeMediaSelector;
 
-    for (const variable of semanticCssVariablesDark) {
+    for (const variable of darkCssVariables) {
       cssFile += `    ${variable}\n`;
     }
 
