@@ -5,6 +5,7 @@ import {
   getColorValue,
   getSortedArrayFromSet,
   getSplitName,
+  getCssVariable,
 } from './utils';
 
 export function generateVariables(themeObject: object) {
@@ -40,14 +41,14 @@ export function generateVariables(themeObject: object) {
             continue;
           }
 
-          const semanticVariable = `${cssVariableName}: var(${matchedToken});`;
+          const { cssVariable } = getCssVariable(name, matchedToken);
 
           if (collectionMode.name.toLowerCase().includes('dark')) {
-            semanticCssVariablesDark.add(semanticVariable);
+            semanticCssVariablesDark.add(cssVariable);
             continue;
           }
 
-          semanticCssVariablesDefault.add(semanticVariable);
+          semanticCssVariablesDefault.add(cssVariable);
           continue;
         }
 

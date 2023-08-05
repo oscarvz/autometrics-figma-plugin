@@ -29,6 +29,20 @@ export function getCssVariableName(
   return `--${prefix ? `${prefix}-` : ''}${splitName.join('-').toLowerCase()}`;
 }
 
+export function getCssVariable(
+  name: Variable['name'],
+  value: string | number | boolean,
+  { prefix }: { prefix?: string } = {},
+) {
+  const variableName = getCssVariableName(name, { prefix });
+  const variable = `${getCssVariableName(name, { prefix })}: ${value};`;
+
+  return {
+    cssVariableName: variableName,
+    cssVariable: variable,
+  };
+}
+
 export function addToThemeObject(
   paths: Array<string>,
   value: string,

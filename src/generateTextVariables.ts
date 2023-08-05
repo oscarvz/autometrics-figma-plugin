@@ -1,7 +1,7 @@
 import { isLineHeightValue } from './typeGuards';
 import {
   addToThemeObject,
-  getCssVariableName,
+  getCssVariable,
   getSortedArrayFromSet,
   getSplitName,
 } from './utils';
@@ -30,10 +30,15 @@ export function generateTextVariables(themeObject: object) {
       lineHeightValue ? ` / ${lineHeightValue}` : ''
     } ${fontName.family}`;
 
-    const cssVariableName = getCssVariableName(name, { prefix: PREFIX });
-    const atomicCssVariable = `${cssVariableName}: ${cssShorthandValue};`;
+    const { cssVariable, cssVariableName } = getCssVariable(
+      name,
+      cssShorthandValue,
+      {
+        prefix: PREFIX,
+      },
+    );
 
-    textCssVariables.add(atomicCssVariable);
+    textCssVariables.add(cssVariable);
 
     const paths = getSplitName(name);
     const prefixedPaths = [PREFIX, ...paths];

@@ -1,7 +1,7 @@
 import {
   addToThemeObject,
   getColorValue,
-  getCssVariableName,
+  getCssVariable,
   getSortedArrayFromSet,
   getSplitName,
 } from './utils';
@@ -44,9 +44,15 @@ function handleDropShadowEffect(
   const colorValue = getColorValue(color);
 
   const boxShadowCssValue = `${offset.x}px ${offset.y}px ${radius}px ${spread}px ${colorValue}`;
-  const cssVariableName = getCssVariableName(name, { prefix: PREFIX });
+  const { cssVariable, cssVariableName } = getCssVariable(
+    name,
+    boxShadowCssValue,
+    {
+      prefix: PREFIX,
+    },
+  );
 
-  effectCssVariables.add(`${cssVariableName}: ${boxShadowCssValue};`);
+  effectCssVariables.add(cssVariable);
 
   const paths = getSplitName(name);
   const prefixedPaths = [PREFIX, ...paths];
