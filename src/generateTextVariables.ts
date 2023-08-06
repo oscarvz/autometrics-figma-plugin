@@ -1,10 +1,12 @@
 import { isLineHeightValue } from './typeGuards';
 import {
   addToThemeObject,
-  getCssVariableName,
+  getCssVariable,
   getSortedArrayFromSet,
   getSplitName,
 } from './utils';
+
+const PREFIX = 'font';
 
 export function generateTextVariables(themeObject: object) {
   const textStyles = figma.getLocalTextStyles();
@@ -26,13 +28,19 @@ export function generateTextVariables(themeObject: object) {
       lineHeightValue ? ` / ${lineHeightValue}` : ''
     } ${fontName.family}`;
 
-    const cssVariableName = getCssVariableName(name);
-    const atomicCssVariable = `${cssVariableName}: ${cssShorthandValue};`;
+    const { cssVariable, cssVariableName } = getCssVariable(
+      name,
+      cssShorthandValue,
+      {
+        prefix: PREFIX,
+      },
+    );
 
-    textCssVariables.add(atomicCssVariable);
+    textCssVariables.add(cssVariable);
 
     const paths = getSplitName(name);
-    addToThemeObject(paths, cssVariableName, themeObject);
+    const prefixedPaths = [PREFIX, ...paths];
+    addToThemeObject(prefixedPaths, cssVariableName, themeObject);
   }
 
   return { textCssVariables: getSortedArrayFromSet(textCssVariables) };

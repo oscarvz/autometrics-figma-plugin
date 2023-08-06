@@ -5,9 +5,10 @@ import {
   getColorValue,
   getSortedArrayFromSet,
   getSplitName,
+  getCssVariable,
 } from './utils';
 
-export function generateTokenVariables(themeObject: object) {
+export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
   const atomicCssVariables = new Set<string>();
@@ -40,14 +41,14 @@ export function generateTokenVariables(themeObject: object) {
             continue;
           }
 
-          const semanticVariable = `${cssVariableName}: var(${matchedToken});`;
+          const { cssVariable } = getCssVariable(name, matchedToken);
 
-          if (collectionMode.name.toLowerCase() === 'dark') {
-            semanticCssVariablesDark.add(semanticVariable);
+          if (collectionMode.name.toLowerCase().includes('dark')) {
+            semanticCssVariablesDark.add(cssVariable);
             continue;
           }
 
-          semanticCssVariablesDefault.add(semanticVariable);
+          semanticCssVariablesDefault.add(cssVariable);
           continue;
         }
 
