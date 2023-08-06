@@ -19,7 +19,7 @@ be used for a typed theming system for CSS-in-JS libraries like
 - [ ] styling for the plugin
 - [ ] refactorrr & type fixes
 - [x] handle text styles
-- [ ] handle effect styles
+- [x] handle effect styles
 - [ ] handle paint styles
 - [ ] ...
 - [ ] profit
