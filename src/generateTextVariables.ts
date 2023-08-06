@@ -13,8 +13,6 @@ export function generateTextVariables(themeObject: object) {
 
   const textCssVariables = new Set<string>();
 
-  // regular 400
-  // medium 500
   for (const textStyle of textStyles) {
     const { fontName, fontSize, lineHeight, name } = textStyle;
 

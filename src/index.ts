@@ -2,7 +2,7 @@ import { generateFiles } from './plugin';
 
 const { cssFile, jsFile } = generateFiles();
 
-// console.clear();
+console.clear();
 
 figma.showUI(__html__);
 
