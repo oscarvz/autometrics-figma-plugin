@@ -38,3 +38,9 @@ export function isLineHeightValue(
 ): lineHeight is LineHeightValue {
   return lineHeight.unit === 'PIXELS' || lineHeight.unit === 'PERCENT';
 }
+
+export function isInnerShadowEffect(
+  effect: Effect,
+): effect is InnerShadowEffect {
+  return effect.type === 'INNER_SHADOW';
+}
