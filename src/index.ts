@@ -2,8 +2,6 @@ import { generateFiles } from './plugin';
 
 const { cssFile, jsFile } = generateFiles();
 
-console.clear();
-
 figma.showUI(__html__);
 
 figma.ui.postMessage({
