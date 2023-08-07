@@ -1,3 +1,5 @@
+import { FONT_WEIGHT_MAP } from './constants';
+
 export function isRgbaValue(value: VariableValue): value is RGBA {
   const values = Object.keys(value);
 
@@ -43,4 +45,10 @@ export function isInnerShadowEffect(
   effect: Effect,
 ): effect is InnerShadowEffect {
   return effect.type === 'INNER_SHADOW';
+}
+
+type FontWeight = keyof typeof FONT_WEIGHT_MAP;
+
+export function isFontWeightValue(value: string): value is FontWeight {
+  return value in FONT_WEIGHT_MAP;
 }

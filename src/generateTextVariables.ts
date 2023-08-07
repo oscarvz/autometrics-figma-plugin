@@ -1,4 +1,5 @@
-import { isLineHeightValue } from './typeGuards';
+import { FONT_WEIGHT_MAP, SPLIT_BY } from './constants';
+import { isFontWeightValue, isLineHeightValue } from './typeGuards';
 import { addToThemeObject, getCssVariable, getSplitName } from './utils';
 
 const PREFIX = 'font';
@@ -11,17 +12,18 @@ export function generateTextVariables(themeObject: object) {
   for (const textStyle of textStyles) {
     const { fontName, fontSize, lineHeight, name } = textStyle;
 
-    let lineHeightValue;
-
+    let lineHeightValue: string | number = 1;
     if (isLineHeightValue(lineHeight)) {
       const unit = lineHeight.unit === 'PERCENT' ? '%' : 'px';
       lineHeightValue = `${lineHeight.value}${unit}`;
     }
 
-    // TODO: fix hardcoded font style
-    const cssShorthandValue = `normal ${fontSize}px${
-      lineHeightValue ? ` / ${lineHeightValue}` : ''
-    } ${fontName.family}`;
+    const fontWeight = fontName.style.toUpperCase().split(SPLIT_BY).join('_');
+    const fontWeightValue = isFontWeightValue(fontWeight)
+      ? FONT_WEIGHT_MAP[fontWeight]
+      : 'REGULAR';
+
+    const cssShorthandValue = `${fontWeightValue} ${fontSize}px / ${lineHeightValue} ${fontName.family}`;
 
     const { cssVariable, cssVariableName } = getCssVariable(
       name,
