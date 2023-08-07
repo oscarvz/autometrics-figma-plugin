@@ -1,10 +1,5 @@
 import { isLineHeightValue } from './typeGuards';
-import {
-  addToThemeObject,
-  getCssVariable,
-  getSortedArrayFromSet,
-  getSplitName,
-} from './utils';
+import { addToThemeObject, getCssVariable, getSplitName } from './utils';
 
 const PREFIX = 'font';
 
@@ -43,5 +38,5 @@ export function generateTextVariables(themeObject: object) {
     addToThemeObject(prefixedPaths, cssVariableName, themeObject);
   }
 
-  return { textCssVariables: getSortedArrayFromSet(textCssVariables) };
+  return { textCssVariables: [...textCssVariables] };
 }

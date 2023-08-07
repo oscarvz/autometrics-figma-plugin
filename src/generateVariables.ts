@@ -3,7 +3,6 @@ import {
   getCssVariableName,
   addToThemeObject,
   getColorValue,
-  getSortedArrayFromSet,
   getSplitName,
   getCssVariable,
 } from './utils';
@@ -41,14 +40,14 @@ export function generateVariables(themeObject: object) {
             continue;
           }
 
-          const { cssVariable } = getCssVariable(name, matchedToken);
+          const { aliasedVariable } = getCssVariable(name, matchedToken);
 
           if (collectionMode.name.toLowerCase().includes('dark')) {
-            semanticCssVariablesDark.add(cssVariable);
+            semanticCssVariablesDark.add(aliasedVariable);
             continue;
           }
 
-          semanticCssVariablesDefault.add(cssVariable);
+          semanticCssVariablesDefault.add(aliasedVariable);
           continue;
         }
 
@@ -81,10 +80,8 @@ export function generateVariables(themeObject: object) {
   }
 
   return {
-    atomicCssVariables: getSortedArrayFromSet(atomicCssVariables),
-    semanticCssVariablesDefault: getSortedArrayFromSet(
-      semanticCssVariablesDefault,
-    ),
-    semanticCssVariablesDark: getSortedArrayFromSet(semanticCssVariablesDark),
+    atomicCssVariables: [...atomicCssVariables],
+    semanticCssVariablesDefault: [...semanticCssVariablesDefault],
+    semanticCssVariablesDark: [...semanticCssVariablesDark],
   };
 }

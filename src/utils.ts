@@ -36,8 +36,10 @@ export function getCssVariable(
 ) {
   const variableName = getCssVariableName(name, { prefix });
   const variable = `${getCssVariableName(name, { prefix })}: ${value};`;
+  const aliasedVariable = `${variableName}: var(${value});`;
 
   return {
+    aliasedVariable,
     cssVariableName: variableName,
     cssVariable: variable,
   };
@@ -107,7 +109,9 @@ export function generateCssFile({
   const close = '}\n';
   let cssFile = ':root {\n';
 
-  const baseVariables = baseCssVariables.flatMap((variable) => variable);
+  const baseVariables = baseCssVariables
+    .map((collection) => collection.sort())
+    .flatMap((variable) => variable);
 
   // Add variables to file, for both atomic and semantic light variables
   for (const variable of baseVariables) {
@@ -115,12 +119,14 @@ export function generateCssFile({
   }
 
   if (darkCssVariables.length > 0) {
+    const sortedDarkSemanticVariables = darkCssVariables.sort();
+
     // Indent & add dark theme selector & variables
     const darkThemeMediaSelector =
       '\n  @media (prefers-color-scheme: dark) {\n';
     cssFile += darkThemeMediaSelector;
 
-    for (const variable of darkCssVariables) {
+    for (const variable of sortedDarkSemanticVariables) {
       cssFile += `    ${variable}\n`;
     }
 
@@ -143,15 +149,6 @@ export function generateJsFile(themeObject: object) {
  */
 function removeQuotesFromObjectKeys(jsonString: string) {
   return jsonString.replace(/"([^"-\s]+)":/g, '$1:');
-}
-
-/**
- * Takes a Set containing string values and returns a sorted array.
- * @param set
- * @returns Array
- */
-export function getSortedArrayFromSet(set: Set<string>) {
-  return Array.from(set).sort();
 }
 
 export function getSplitName(name: string) {

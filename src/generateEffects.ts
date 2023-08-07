@@ -3,7 +3,6 @@ import {
   addToThemeObject,
   getColorValue,
   getCssVariable,
-  getSortedArrayFromSet,
   getSplitName,
 } from './utils';
 
@@ -50,7 +49,7 @@ export function generateEffects(themeObject: object) {
   }
 
   return {
-    effectCssVariables: getSortedArrayFromSet(effectCssVariables),
+    effectCssVariables: [...effectCssVariables],
   };
 }
 
