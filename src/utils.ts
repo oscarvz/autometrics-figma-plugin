@@ -118,22 +118,21 @@ export function generateCssFile({
     cssFile += `  ${variable}\n`;
   }
 
+  cssFile += close;
+
   if (darkCssVariables.length > 0) {
     const sortedDarkSemanticVariables = darkCssVariables.sort();
 
     // Indent & add dark theme selector & variables
-    const darkThemeMediaSelector =
-      '\n  @media (prefers-color-scheme: dark) {\n';
+    const darkThemeMediaSelector = '\n@media (prefers-color-scheme: dark) {\n';
     cssFile += darkThemeMediaSelector;
 
     for (const variable of sortedDarkSemanticVariables) {
-      cssFile += `    ${variable}\n`;
+      cssFile += `  ${variable}\n`;
     }
 
-    cssFile += `  ${close}`;
+    cssFile += `${close}`;
   }
-
-  cssFile += close;
 
   return cssFile;
 }
