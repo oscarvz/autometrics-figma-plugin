@@ -18,10 +18,10 @@ export function generateTextVariables(themeObject: object) {
       lineHeightValue = `${lineHeight.value}${unit}`;
     }
 
-    const fontWeight = fontName.style.toUpperCase().split(SPLIT_BY).join('_');
-    const fontWeightValue = isFontWeightValue(fontWeight)
-      ? FONT_WEIGHT_MAP[fontWeight]
-      : 'REGULAR';
+    const fontStyle = fontName.style.toUpperCase().split(SPLIT_BY).join('');
+    const isFontWeight = isFontWeightValue(fontStyle);
+    const fontWeightValue =
+      FONT_WEIGHT_MAP[isFontWeight ? fontStyle : 'REGULAR'];
 
     const cssShorthandValue = `${fontWeightValue} ${fontSize}px / ${lineHeightValue} ${fontName.family}`;
 
