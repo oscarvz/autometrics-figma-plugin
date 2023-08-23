@@ -1,10 +1,10 @@
-import { isVariableAlias, isRgbaValue, isRgbValue } from './typeGuards';
+import { isRgbValue, isRgbaValue, isVariableAlias } from './typeGuards';
 import {
-  getCssVariableName,
   addToThemeObject,
   getColorValue,
-  getSplitName,
   getCssVariable,
+  getCssVariableName,
+  getSplitName,
 } from './utils';
 
 export function generateVariables(themeObject: object) {
@@ -13,34 +13,41 @@ export function generateVariables(themeObject: object) {
   const atomicCssVariables = new Set<string>();
   const semanticCssVariablesDefault = new Set<string>();
   const semanticCssVariablesDark = new Set<string>();
-  const atomicVariableReferences = new Map<Variable['id'], string>();
 
   for (const variableCollection of variableCollections) {
     const { modes: collectionModes, variableIds } = variableCollection;
 
     for (const collectionMode of collectionModes) {
       for (const variableId of variableIds) {
-        const variable = figma.variables.getVariableById(variableId);
-        if (!variable) {
+        const figmaVariable = figma.variables.getVariableById(variableId);
+        if (!figmaVariable) {
           continue;
         }
 
-        const { name, id, valuesByMode } = variable;
-        const cssVariableName = getCssVariableName(name);
+        const figmaVariableModeValue =
+          figmaVariable.valuesByMode[collectionMode.modeId];
+        const cssVariableName = getCssVariableName(figmaVariable.name);
 
-        const paths = getSplitName(name);
+        const paths = getSplitName(figmaVariable.name);
         addToThemeObject(paths, cssVariableName, themeObject);
 
-        const modeValue = valuesByMode[collectionMode.modeId];
-
-        const isAlias = isVariableAlias(modeValue);
+        const isAlias = isVariableAlias(figmaVariableModeValue);
         if (isAlias) {
-          const matchedToken = atomicVariableReferences.get(modeValue.id);
-          if (!matchedToken) {
+          const figmaAliasedVariable = figma.variables.getVariableById(
+            figmaVariableModeValue.id,
+          );
+          if (!figmaAliasedVariable) {
             continue;
           }
 
-          const { aliasedVariable } = getCssVariable(name, matchedToken);
+          const aliasedVariableValue = getCssVariableName(
+            figmaAliasedVariable.name,
+          );
+
+          const { aliasedVariable } = getCssVariable(
+            figmaVariable.name,
+            aliasedVariableValue,
+          );
 
           if (collectionMode.name.toLowerCase().includes('dark')) {
             semanticCssVariablesDark.add(aliasedVariable);
@@ -51,30 +58,28 @@ export function generateVariables(themeObject: object) {
           continue;
         }
 
-        switch (variable.resolvedType) {
+        switch (figmaVariable.resolvedType) {
           case 'BOOLEAN' || 'STRING': {
-            const cssVariable = `${cssVariableName}: ${modeValue};`;
+            const cssVariable = `${cssVariableName}: ${figmaVariableModeValue};`;
             atomicCssVariables.add(cssVariable);
             break;
           }
           case 'COLOR': {
-            const isValidRgba = isRgbaValue(modeValue);
-            const isValidRgb = isRgbValue(modeValue);
+            const isValidRgba = isRgbaValue(figmaVariableModeValue);
+            const isValidRgb = isRgbValue(figmaVariableModeValue);
 
             if (isValidRgba || isValidRgb) {
-              const colorValue = getColorValue(modeValue);
+              const colorValue = getColorValue(figmaVariableModeValue);
               const cssVariable = `${cssVariableName}: ${colorValue};`;
               atomicCssVariables.add(cssVariable);
             }
             break;
           }
           case 'FLOAT': {
-            const cssVariable = `${cssVariableName}: ${modeValue}px;`;
+            const cssVariable = `${cssVariableName}: ${figmaVariableModeValue}px;`;
             atomicCssVariables.add(cssVariable);
           }
         }
-
-        atomicVariableReferences.set(id, cssVariableName);
       }
     }
   }
