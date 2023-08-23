@@ -10,9 +10,9 @@ import {
 export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
-  const atomicCssVariables = new Set<string>();
-  const semanticCssVariablesDefault = new Set<string>();
-  const semanticCssVariablesDark = new Set<string>();
+  const atomicCssVariables: Array<string> = [];
+  const semanticCssVariablesDefault: Array<string> = [];
+  const semanticCssVariablesDark: Array<string> = [];
 
   for (const variableCollection of variableCollections) {
     const { modes: collectionModes, variableIds } = variableCollection;
@@ -50,18 +50,18 @@ export function generateVariables(themeObject: object) {
           );
 
           if (collectionMode.name.toLowerCase().includes('dark')) {
-            semanticCssVariablesDark.add(aliasedVariable);
+            semanticCssVariablesDark.push(aliasedVariable);
             continue;
           }
 
-          semanticCssVariablesDefault.add(aliasedVariable);
+          semanticCssVariablesDefault.push(aliasedVariable);
           continue;
         }
 
         switch (figmaVariable.resolvedType) {
           case 'BOOLEAN' || 'STRING': {
             const cssVariable = `${cssVariableName}: ${figmaVariableModeValue};`;
-            atomicCssVariables.add(cssVariable);
+            atomicCssVariables.push(cssVariable);
             break;
           }
           case 'COLOR': {
@@ -71,13 +71,13 @@ export function generateVariables(themeObject: object) {
             if (isValidRgba || isValidRgb) {
               const colorValue = getColorValue(figmaVariableModeValue);
               const cssVariable = `${cssVariableName}: ${colorValue};`;
-              atomicCssVariables.add(cssVariable);
+              atomicCssVariables.push(cssVariable);
             }
             break;
           }
           case 'FLOAT': {
             const cssVariable = `${cssVariableName}: ${figmaVariableModeValue}px;`;
-            atomicCssVariables.add(cssVariable);
+            atomicCssVariables.push(cssVariable);
           }
         }
       }
@@ -85,8 +85,8 @@ export function generateVariables(themeObject: object) {
   }
 
   return {
-    atomicCssVariables: [...atomicCssVariables],
-    semanticCssVariablesDefault: [...semanticCssVariablesDefault],
-    semanticCssVariablesDark: [...semanticCssVariablesDark],
+    atomicCssVariables,
+    semanticCssVariablesDefault,
+    semanticCssVariablesDark,
   };
 }
