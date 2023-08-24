@@ -1,17 +1,67 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Figma Plugin</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      body {
+        font:
+          14px -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background-color: var(--figma-color-bg);
+        color: var(--figma-color-text);
+      }
+
+      .app-container {
+        display: grid;
+        gap: 16px;
+        height: 100%;
+        padding: 16px;
+        border-top: 1px solid var(--figma-color-border);
+      }
+
+      .plugin-output-container {
+        display: grid;
+        gap: 16px;
+        min-height: 0;
+      }
+
+      .plugin-output {
+        overflow: auto;
+        margin: 0;
+        min-height: 0;
+        padding: 8px;
+        font-size: 12px;
+        border-radius: 4px;
+        border: 1px solid var(--figma-color-border);
+        background-color: var(--figma-color-bg-secondary);
+      }
+    </style>
   </head>
 
   <body>
-    <h1>Generated CSS & JS theme object</h1>
+    <div class="app-container">
+      <h1>Generated CSS & JS theme object</h1>
 
-    <pre id="css-file"></pre>
-
-    <pre id="js-file"></pre>
+      <div class="plugin-output-container">
+        <pre class="plugin-output" id="css-file"></pre>
+        <pre class="plugin-output" id="js-file"></pre>
+      </div>
+    </div>
 
     <script>
       onmessage = ({ data: { pluginMessage } }) => {
