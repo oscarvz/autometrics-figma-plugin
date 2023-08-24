@@ -34,21 +34,48 @@
         border-top: 1px solid var(--figma-color-border);
       }
 
-      .plugin-output-container {
+      .output-container {
         display: grid;
         gap: 16px;
         min-height: 0;
       }
 
-      .plugin-output {
+      .output {
         overflow: auto;
         margin: 0;
         min-height: 0;
         padding: 8px;
         font-size: 12px;
+        height: 100%;
+      }
+
+      .output-wrapper {
+        position: relative;
+        overflow: hidden;
+        min-height: 0;
         border-radius: 4px;
         border: 1px solid var(--figma-color-border);
         background-color: var(--figma-color-bg-secondary);
+      }
+
+      .copy-output {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+
+        background: none;
+        border: none;
+        outline: none;
+
+        cursor: pointer;
+
+        background-color: var(--figma-color-bg-brand);
+        color: var(--figma-color-text-inverse);
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 6px;
+        margin: 0;
+        padding: 8px 12px;
       }
     </style>
   </head>
@@ -57,9 +84,16 @@
     <div class="app-container">
       <h1>Generated CSS & JS theme object</h1>
 
-      <div class="plugin-output-container">
-        <pre class="plugin-output" id="css-file"></pre>
-        <pre class="plugin-output" id="js-file"></pre>
+      <div class="output-container">
+        <div class="output-wrapper">
+          <pre class="output" id="css-file"></pre>
+          <button class="copy-output">copy</button>
+        </div>
+
+        <div class="output-wrapper">
+          <pre class="output" id="js-file"></pre>
+          <button class="copy-output">copy</button>
+        </div>
       </div>
     </div>
 
