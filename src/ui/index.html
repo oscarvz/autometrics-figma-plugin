@@ -8,11 +8,13 @@
       href="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/styles/default.min.css"
     />
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/highlight.min.js"></script>
-
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/languages/javascript.min.js"></script>
     <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/languages/css.min.js"></script>
-
     <title>Figma Plugin</title>
+
+    <script>
+      hljs.highlightAll();
+    </script>
 
     <style>
       * {
@@ -98,11 +100,26 @@
 
       pre.output-wrapper {
         position: relative;
-        overflow: hidden;
         min-height: 0;
-        border-radius: 4px;
+        border-radius: 0 4px 4px 4px;
         border: 1px solid var(--figma-color-border);
         background-color: var(--figma-color-bg-secondary);
+        margin-top: 24px;
+      }
+
+      pre.output-wrapper .output-tag {
+        position: absolute;
+        top: -23px;
+        left: -1px;
+        background: var(--figma-color-bg-secondary);
+        color: var(--figma-color-text);
+        border: 1px solid var(--figma-color-border);
+        border-bottom: none;
+        padding: 4px 12px;
+        line-height: 1;
+        border-radius: 4px 4px 0 0;
+        font-weight: 600;
+        color: var(--figma-color-text-secondary);
       }
 
       code.output {
@@ -146,25 +163,27 @@
         const outputContainerElement =
           document.querySelector('.output-container');
 
-        // Get the languages from the keys returned from the plugin results.
-        const languages = pluginMessage.flatMap((entry) => Object.keys(entry));
-        hljs.configure({ languages });
-
         pluginMessage.forEach((entry) => {
-          Object.values(entry).forEach((entry) => {
+          Object.entries(entry).forEach(([language, value]) => {
+            hljs.configure({ languages: [language] });
+
             const preElement = document.createElement('pre');
             preElement.classList.add('output-wrapper');
 
+            const spanElement = document.createElement('span');
+            spanElement.classList.add('output-tag');
+            spanElement.innerText = language;
+
             const codeElement = document.createElement('code');
             codeElement.classList.add('output');
-            codeElement.innerHTML = entry;
+            codeElement.innerHTML = value;
             hljs.highlightElement(codeElement);
 
             const buttonElement = document.createElement('button');
             buttonElement.classList.add('copy-output');
             buttonElement.innerText = 'Copy';
             buttonElement.addEventListener('click', () => {
-              copyToClipboard(entry);
+              copyToClipboard(value);
 
               window.setTimeout(() => {
                 buttonElement.innerText = 'Copied';
@@ -175,6 +194,7 @@
               }, 0);
             });
 
+            preElement.appendChild(spanElement);
             preElement.appendChild(codeElement);
             preElement.appendChild(buttonElement);
             outputContainerElement.appendChild(preElement);
