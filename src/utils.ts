@@ -143,7 +143,7 @@ export function generateJsFile(themeObject: object) {
     themeObject,
     null,
     2,
-  )};\n`;
+  )} as const;\n`;
   return removeQuotesFromObjectKeys(jsContent);
 }
 

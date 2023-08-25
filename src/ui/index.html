@@ -28,7 +28,8 @@
 
       body {
         font:
-          14px -apple-system,
+          14px Inter,
+          -apple-system,
           BlinkMacSystemFont,
           sans-serif;
         background-color: var(--figma-color-bg);
@@ -77,7 +78,7 @@
         }
 
         & .hljs-string {
-          color: var(--figma-color-bg-warning-secondary);
+          color: var(--figma-color-text-selected);
         }
       }
 
@@ -119,11 +120,14 @@
         cursor: pointer;
         background-color: var(--figma-color-bg-brand);
         color: var(--figma-color-text-onbrand);
-        font-size: 12px;
-        font-weight: bold;
         border-radius: 6px;
         margin: 0;
         padding: 8px 12px;
+        height: 32px;
+        font-size: 11px;
+        font-family: Inter, sans-serif;
+        font-weight: 500;
+        box-shadow: 0 0 4px 2px rgb(0 0 0 / 5%);
       }
     </style>
   </head>
@@ -156,7 +160,7 @@
 
             const buttonElement = document.createElement('button');
             buttonElement.classList.add('copy-output');
-            buttonElement.innerText = 'copy';
+            buttonElement.innerText = 'Copy';
             buttonElement.addEventListener('click', () =>
               copyToClipboard(entry),
             );
