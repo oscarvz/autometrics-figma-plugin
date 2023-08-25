@@ -70,7 +70,7 @@
         cursor: pointer;
 
         background-color: var(--figma-color-bg-brand);
-        color: var(--figma-color-text-inverse);
+        color: var(--figma-color-text-onbrand);
         font-size: 12px;
         font-weight: bold;
         border-radius: 6px;
@@ -84,29 +84,48 @@
     <div class="app-container">
       <h1>Generated CSS & JS theme object</h1>
 
-      <div class="output-container">
-        <div class="output-wrapper">
-          <pre class="output" id="css-file"></pre>
-          <button class="copy-output">copy</button>
-        </div>
-
-        <div class="output-wrapper">
-          <pre class="output" id="js-file"></pre>
-          <button class="copy-output">copy</button>
-        </div>
-      </div>
+      <div class="output-container"></div>
     </div>
 
     <script>
       onmessage = ({ data: { pluginMessage } }) => {
-        const {
-          css: { id: cssId, payload: cssPayload },
-          js: { id: jsId, payload: jsPayload },
-        } = pluginMessage;
+        const outputContainerElement =
+          document.querySelector('.output-container');
 
-        document.querySelector(`#${cssId}`).innerHTML = cssPayload;
-        document.querySelector(`#${jsId}`).innerHTML = jsPayload;
+        pluginMessage.forEach((entry) => {
+          Object.values(entry).forEach((entry) => {
+            const outputWrapperElement = document.createElement('div');
+            outputWrapperElement.classList.add('output-wrapper');
+
+            const outputElement = document.createElement('pre');
+            outputElement.classList.add('output');
+            outputElement.innerHTML = entry.payload;
+
+            const buttonElement = document.createElement('button');
+            buttonElement.classList.add('copy-output');
+            buttonElement.innerText = 'copy';
+            buttonElement.addEventListener('click', () =>
+              copyToClipboard(entry.payload),
+            );
+
+            outputWrapperElement.appendChild(outputElement);
+            outputWrapperElement.appendChild(buttonElement);
+            outputContainerElement.appendChild(outputWrapperElement);
+          });
+        });
       };
+
+      // navigator.clipboard is not available in the plugin so we have to fall
+      // back to a hack where we create a hidden text input, select its
+      // contents and then copy it.
+      function copyToClipboard(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
     </script>
   </body>
 </html>
