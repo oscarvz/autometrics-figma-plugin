@@ -128,14 +128,16 @@
         font-family: Inter, sans-serif;
         font-weight: 500;
         box-shadow: 0 0 4px 2px rgb(0 0 0 / 5%);
+
+        &:active {
+          background-color: var(--figma-color-bg-brand-pressed);
+        }
       }
     </style>
   </head>
 
   <body>
     <div class="app-container">
-      <h1>Generated CSS & JS theme object</h1>
-
       <div class="output-container"></div>
     </div>
 
@@ -161,9 +163,17 @@
             const buttonElement = document.createElement('button');
             buttonElement.classList.add('copy-output');
             buttonElement.innerText = 'Copy';
-            buttonElement.addEventListener('click', () =>
-              copyToClipboard(entry),
-            );
+            buttonElement.addEventListener('click', () => {
+              copyToClipboard(entry);
+
+              window.setTimeout(() => {
+                buttonElement.innerText = 'Copied';
+
+                window.setTimeout(() => {
+                  buttonElement.innerText = 'Copy';
+                }, 3000);
+              }, 0);
+            });
 
             preElement.appendChild(codeElement);
             preElement.appendChild(buttonElement);
@@ -173,8 +183,8 @@
       };
 
       // navigator.clipboard is not available in the plugin so we have to fall
-      // back to a hack where we create a hidden text input, select its
-      // contents and then copy it.
+      // back to a hack where we create a hidden text input, select its contents
+      // and then copy it.
       function copyToClipboard(text) {
         const textarea = document.createElement('textarea');
         textarea.value = text;
