@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/styles/default.min.css"
+    />
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/highlight.min.js"></script>
+
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/languages/javascript.min.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/languages/css.min.js"></script>
+
     <title>Figma Plugin</title>
 
     <style>
@@ -26,7 +35,49 @@
         color: var(--figma-color-text);
       }
 
-      .app-container {
+      pre,
+      code {
+        margin: 0;
+        padding: 0;
+      }
+
+      code.hljs {
+        background-color: var(--figma-color-bg-secondary);
+        color: var(--figma-color-text-tertiary);
+
+        & .hljs-comment {
+          color: var(--figma-color-text-tertiary);
+        }
+
+        & .hljs-attr {
+          color: var(--figma-color-text-secondary);
+        }
+
+        & .hljs-selector-pseudo,
+        & .hljs-selector-tag,
+        & .hljs-keyword {
+          color: var(--figma-color-text-brand-secondary);
+          font-weight: bold;
+        }
+
+        & .hljs-number {
+          color: var(--figma-color-text-component);
+        }
+
+        & .hljs-built_in {
+          color: var(--figma-color-text-warning);
+        }
+
+        & .hljs-selector-attr {
+          color: var(--figma-color-text-danger);
+        }
+
+        & .hljs-string {
+          color: var(--figma-color-bg-warning-secondary);
+        }
+      }
+
+      div.app-container {
         display: grid;
         gap: 16px;
         height: 100%;
@@ -40,16 +91,7 @@
         min-height: 0;
       }
 
-      .output {
-        overflow: auto;
-        margin: 0;
-        min-height: 0;
-        padding: 8px;
-        font-size: 12px;
-        height: 100%;
-      }
-
-      .output-wrapper {
+      pre.output-wrapper {
         position: relative;
         overflow: hidden;
         min-height: 0;
@@ -58,17 +100,19 @@
         background-color: var(--figma-color-bg-secondary);
       }
 
-      .copy-output {
+      code.output {
+        font-size: 12px;
+        height: 100%;
+      }
+
+      button.copy-output {
         position: absolute;
         top: 8px;
         right: 8px;
-
         background: none;
         border: none;
         outline: none;
-
         cursor: pointer;
-
         background-color: var(--figma-color-bg-brand);
         color: var(--figma-color-text-onbrand);
         font-size: 12px;
@@ -92,25 +136,30 @@
         const outputContainerElement =
           document.querySelector('.output-container');
 
+        // Get the languages from the keys returned from the plugin results.
+        const languages = pluginMessage.flatMap((entry) => Object.keys(entry));
+        hljs.configure({ languages });
+
         pluginMessage.forEach((entry) => {
           Object.values(entry).forEach((entry) => {
-            const outputWrapperElement = document.createElement('div');
-            outputWrapperElement.classList.add('output-wrapper');
+            const preElement = document.createElement('pre');
+            preElement.classList.add('output-wrapper');
 
-            const outputElement = document.createElement('pre');
-            outputElement.classList.add('output');
-            outputElement.innerHTML = entry.payload;
+            const codeElement = document.createElement('code');
+            codeElement.classList.add('output');
+            codeElement.innerHTML = entry;
+            hljs.highlightElement(codeElement);
 
             const buttonElement = document.createElement('button');
             buttonElement.classList.add('copy-output');
             buttonElement.innerText = 'copy';
             buttonElement.addEventListener('click', () =>
-              copyToClipboard(entry.payload),
+              copyToClipboard(entry),
             );
 
-            outputWrapperElement.appendChild(outputElement);
-            outputWrapperElement.appendChild(buttonElement);
-            outputContainerElement.appendChild(outputWrapperElement);
+            preElement.appendChild(codeElement);
+            preElement.appendChild(buttonElement);
+            outputContainerElement.appendChild(preElement);
           });
         });
       };

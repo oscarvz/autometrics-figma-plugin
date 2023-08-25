@@ -8,6 +8,6 @@
   "editorType": ["dev"],
   "ui": "dist/index.html",
   "networkAccess": {
-    "allowedDomains": ["none"]
+    "allowedDomains": ["https://unpkg.com/"]
   }
 }

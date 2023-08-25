@@ -3,15 +3,7 @@
 // injecting the JS with a build step.
 type OnmessageType = {
   data: {
-    pluginMessage: Array<
-      Record<
-        string,
-        {
-          id: string;
-          payload: string;
-        }
-      >
-    >;
+    pluginMessage: Array<Record<string, string>>;
   };
 };
 
@@ -25,14 +17,12 @@ onmessage = ({ data: { pluginMessage } }: OnmessageType) => {
 
       const outputElement = document.createElement('pre');
       outputElement.classList.add('output');
-      outputElement.innerHTML = entry.payload;
+      outputElement.innerHTML = entry;
 
       const buttonElement = document.createElement('button');
       buttonElement.classList.add('copy-output');
       buttonElement.innerText = 'copy';
-      buttonElement.addEventListener('click', () =>
-        copyToClipboard(entry.payload),
-      );
+      buttonElement.addEventListener('click', () => copyToClipboard(entry));
 
       outputWrapperElement.appendChild(outputElement);
       outputWrapperElement.appendChild(buttonElement);
@@ -41,9 +31,9 @@ onmessage = ({ data: { pluginMessage } }: OnmessageType) => {
   });
 };
 
-// navigator.clipboard is not available in the plugin so we have to fall
-// back to a hack where we create a hidden text input, select its
-// contents and then copy it.
+// HACK: navigator.clipboard is not available in the plugin so we have to fall
+// back to a hack where we create a hidden text input, select its contents and
+// then copy it.
 function copyToClipboard(text: string) {
   const textarea = document.createElement('textarea');
   textarea.value = text;

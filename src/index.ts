@@ -6,15 +6,9 @@ figma.showUI(__html__, { themeColors: true });
 
 figma.ui.postMessage([
   {
-    css: {
-      id: 'css-file',
-      payload: cssFile,
-    },
+    css: cssFile,
   },
   {
-    js: {
-      id: 'js-file',
-      payload: jsFile,
-    },
+    javascript: jsFile,
   },
 ]);
