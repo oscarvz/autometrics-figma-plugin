@@ -1,28 +1,218 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/styles/default.min.css"
+    />
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/highlight.min.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/languages/javascript.min.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/languages/css.min.js"></script>
     <title>Figma Plugin</title>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      body {
+        font:
+          14px Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background-color: var(--figma-color-bg);
+        color: var(--figma-color-text);
+      }
+
+      pre,
+      code {
+        margin: 0;
+        padding: 0;
+      }
+
+      pre code.hljs {
+        padding: 8px;
+      }
+
+      code.hljs {
+        background-color: var(--figma-color-bg-secondary);
+        color: var(--figma-color-text-tertiary);
+
+        & .hljs-comment {
+          color: var(--figma-color-text-tertiary);
+        }
+
+        & .hljs-attr {
+          color: var(--figma-color-text-secondary);
+        }
+
+        & .hljs-selector-pseudo,
+        & .hljs-selector-tag,
+        & .hljs-keyword {
+          color: var(--figma-color-text-brand-secondary);
+          font-weight: bold;
+        }
+
+        & .hljs-number {
+          color: var(--figma-color-text-component);
+        }
+
+        & .hljs-built_in {
+          color: var(--figma-color-text-warning);
+        }
+
+        & .hljs-selector-attr {
+          color: var(--figma-color-text-danger);
+        }
+
+        & .hljs-string {
+          color: var(--figma-color-text-selected);
+        }
+      }
+
+      div.app-container {
+        display: grid;
+        gap: 16px;
+        height: 100%;
+        padding: 16px;
+        border-top: 1px solid var(--figma-color-border);
+      }
+
+      .output-container {
+        display: grid;
+        gap: 16px;
+        min-height: 0;
+      }
+
+      pre.output-wrapper {
+        position: relative;
+        min-height: 0;
+        border-radius: 0 4px 4px 4px;
+        border: 1px solid var(--figma-color-border);
+        background-color: var(--figma-color-bg-secondary);
+        margin-top: 24px;
+      }
+
+      pre.output-wrapper .output-tag {
+        position: absolute;
+        top: -23px;
+        left: -1px;
+        background: var(--figma-color-bg-secondary);
+        color: var(--figma-color-text);
+        border: 1px solid var(--figma-color-border);
+        border-bottom: none;
+        padding: 4px 12px;
+        line-height: 1;
+        border-radius: 4px 4px 0 0;
+        font-weight: 600;
+        color: var(--figma-color-text-secondary);
+      }
+
+      code.output {
+        font-size: 12px;
+        height: 100%;
+      }
+
+      button.copy-output {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: none;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        background-color: var(--figma-color-bg-brand);
+        color: var(--figma-color-text-onbrand);
+        border-radius: 6px;
+        margin: 0;
+        padding: 8px 12px;
+        height: 32px;
+        font-size: 11px;
+        font-family: Inter, sans-serif;
+        font-weight: 500;
+        box-shadow: 0 0 4px 2px rgb(0 0 0 / 5%);
+
+        &:active {
+          background-color: var(--figma-color-bg-brand-pressed);
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <h1>Generated CSS & JS theme object</h1>
-
-    <pre id="css-file"></pre>
-
-    <pre id="js-file"></pre>
+    <div class="app-container">
+      <div class="output-container"></div>
+    </div>
 
     <script>
       onmessage = ({ data: { pluginMessage } }) => {
-        const {
-          css: { id: cssId, payload: cssPayload },
-          js: { id: jsId, payload: jsPayload },
-        } = pluginMessage;
+        const outputContainerElement =
+          document.querySelector('.output-container');
 
-        document.querySelector(`#${cssId}`).innerHTML = cssPayload;
-        document.querySelector(`#${jsId}`).innerHTML = jsPayload;
+        pluginMessage.forEach((entry) => {
+          Object.entries(entry).forEach(([language, value]) => {
+            hljs.configure({ languages: [language] });
+
+            const preElement = document.createElement('pre');
+            preElement.classList.add('output-wrapper');
+
+            const spanElement = document.createElement('span');
+            spanElement.classList.add('output-tag');
+            spanElement.innerText = language;
+
+            const codeElement = document.createElement('code');
+            codeElement.classList.add('output');
+            codeElement.innerHTML = value;
+            hljs.highlightElement(codeElement);
+
+            const buttonElement = document.createElement('button');
+            buttonElement.classList.add('copy-output');
+            buttonElement.innerText = 'Copy';
+            buttonElement.addEventListener('click', () => {
+              copyToClipboard(value);
+
+              window.setTimeout(() => {
+                buttonElement.innerText = 'Copied';
+
+                window.setTimeout(() => {
+                  buttonElement.innerText = 'Copy';
+                }, 3000);
+              }, 0);
+            });
+
+            preElement.appendChild(spanElement);
+            preElement.appendChild(codeElement);
+            preElement.appendChild(buttonElement);
+            outputContainerElement.appendChild(preElement);
+          });
+        });
       };
+
+      // navigator.clipboard is not available in the plugin so we have to fall
+      // back to a hack where we create a hidden text input, select its contents
+      // and then copy it.
+      function copyToClipboard(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
     </script>
   </body>
 </html>

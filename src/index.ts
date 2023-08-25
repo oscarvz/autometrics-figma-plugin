@@ -2,15 +2,13 @@ import { generateFiles } from './plugin';
 
 const { cssFile, jsFile } = generateFiles();
 
-figma.showUI(__html__);
+figma.showUI(__html__, { themeColors: true });
 
-figma.ui.postMessage({
-  css: {
-    id: 'css-file',
-    payload: cssFile,
+figma.ui.postMessage([
+  {
+    css: cssFile,
   },
-  js: {
-    id: 'js-file',
-    payload: jsFile,
+  {
+    javascript: jsFile,
   },
-});
+]);

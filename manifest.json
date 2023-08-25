@@ -6,8 +6,8 @@
   "capabilities": ["inspect"],
   "enableProposedApi": false,
   "editorType": ["dev"],
-  "ui": "src/ui/index.html",
+  "ui": "dist/index.html",
   "networkAccess": {
-    "allowedDomains": ["none"]
+    "allowedDomains": ["https://unpkg.com/"]
   }
 }
