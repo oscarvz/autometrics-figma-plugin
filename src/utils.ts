@@ -26,7 +26,8 @@ export function getCssVariableName(
   { prefix }: { prefix?: string } = {},
 ) {
   const splitName = getSplitName(name);
-  return `--${prefix ? `${prefix}-` : ''}${splitName.join('-').toLowerCase()}`;
+  const prefixString = prefix ? `${prefix}-` : '';
+  return `--${prefixString}${splitName.join('-').toLowerCase()}`;
 }
 
 export function getCssVariable(

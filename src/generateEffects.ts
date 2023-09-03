@@ -57,12 +57,10 @@ function handleShadowEffect(effect: DropShadowEffect | InnerShadowEffect) {
   const isInnerEffect = isInnerShadowEffect(effect);
 
   const cssShadowValue = `${offset.x}px ${offset.y}px ${radius}px ${spread}px ${colorValue}`;
-  const cssValue = `${isInnerEffect ? 'inset ' : ''}${cssShadowValue}`;
-
-  return cssValue;
+  const insetPrefix = isInnerEffect ? 'inset ' : '';
+  return `${insetPrefix}${cssShadowValue}`;
 }
 
 function handleBlurEffect({ radius }: BlurEffect) {
-  const cssValue = `blur(${radius}px)`;
-  return cssValue;
+  return `blur(${radius}px)`;
 }
