@@ -1,10 +1,11 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
+export default defineConfig((options) => ({
   entry: ['src/index.ts'],
   outDir: 'dist',
-  clean: true,
-  sourcemap: true,
-  splitting: false,
   publicDir: 'src/ui',
-});
+  splitting: false,
+  minify: !options.watch,
+  clean: !options.watch,
+  sourcemap: !!options.watch,
+}));
