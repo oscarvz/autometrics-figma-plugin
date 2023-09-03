@@ -7,16 +7,14 @@ import {
   getSplitName,
 } from './utils';
 
+const atomicCssVariables = new Set<string>();
+const semanticCssVariablesDefault = new Set<string>();
+const semanticCssVariablesDark = new Set<string>();
+
 export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
-  const atomicCssVariables = new Set<string>();
-  const semanticCssVariablesDefault = new Set<string>();
-  const semanticCssVariablesDark = new Set<string>();
-
-  for (const variableCollection of variableCollections) {
-    const { modes: collectionModes, variableIds } = variableCollection;
-
+  for (const { modes: collectionModes, variableIds } of variableCollections) {
     for (const collectionMode of collectionModes) {
       for (const variableId of variableIds) {
         const figmaVariable = figma.variables.getVariableById(variableId);
@@ -33,60 +31,75 @@ export function generateVariables(themeObject: object) {
 
         const isAlias = isVariableAlias(figmaVariableModeValue);
         if (isAlias) {
-          const figmaAliasedVariable = figma.variables.getVariableById(
-            figmaVariableModeValue.id,
-          );
-          if (!figmaAliasedVariable) {
-            continue;
-          }
-
-          const aliasedVariableValue = getCssVariableName(
-            figmaAliasedVariable.name,
-          );
-
-          const { aliasedVariable } = getCssVariable(
-            figmaVariable.name,
-            aliasedVariableValue,
-          );
-
-          if (collectionMode.name.toLowerCase().includes('dark')) {
-            semanticCssVariablesDark.add(aliasedVariable);
-            continue;
-          }
-
-          semanticCssVariablesDefault.add(aliasedVariable);
+          handleAlias(variableId, cssVariableName, collectionMode.name);
           continue;
         }
 
-        switch (figmaVariable.resolvedType) {
-          case 'BOOLEAN' || 'STRING': {
-            const cssVariable = `${cssVariableName}: ${figmaVariableModeValue};`;
-            atomicCssVariables.add(cssVariable);
-            break;
-          }
-          case 'COLOR': {
-            const isValidRgba = isRgbaValue(figmaVariableModeValue);
-            const isValidRgb = isRgbValue(figmaVariableModeValue);
-
-            if (isValidRgba || isValidRgb) {
-              const colorValue = getColorValue(figmaVariableModeValue);
-              const cssVariable = `${cssVariableName}: ${colorValue};`;
-              atomicCssVariables.add(cssVariable);
-            }
-            break;
-          }
-          case 'FLOAT': {
-            const cssVariable = `${cssVariableName}: ${figmaVariableModeValue}px;`;
-            atomicCssVariables.add(cssVariable);
-          }
-        }
+        handleAtomicValues(
+          figmaVariable.resolvedType,
+          cssVariableName,
+          figmaVariableModeValue,
+        );
       }
     }
   }
 
   return {
-    atomicCssVariables: [...atomicCssVariables],
-    semanticCssVariablesDefault: [...semanticCssVariablesDefault],
-    semanticCssVariablesDark: [...semanticCssVariablesDark],
+    atomicCssVariables: Array.from(atomicCssVariables),
+    semanticCssVariablesDefault: Array.from(semanticCssVariablesDefault),
+    semanticCssVariablesDark: Array.from(semanticCssVariablesDark),
   };
+}
+
+function handleAlias(
+  variableId: string,
+  variableName: string,
+  collectionModeName: string,
+) {
+  const figmaAliasedVariable = figma.variables.getVariableById(variableId);
+  if (!figmaAliasedVariable) {
+    return;
+  }
+
+  const aliasedVariableValue = getCssVariableName(figmaAliasedVariable.name);
+  const { aliasedVariable } = getCssVariable(
+    variableName,
+    aliasedVariableValue,
+  );
+
+  if (collectionModeName.toLowerCase().includes('dark')) {
+    semanticCssVariablesDark.add(aliasedVariable);
+    return;
+  }
+
+  semanticCssVariablesDefault.add(aliasedVariable);
+}
+
+function handleAtomicValues(
+  resolvedType: string,
+  cssVariableName: string,
+  figmaVariableModeValue: Exclude<VariableValue, VariableAlias>,
+) {
+  switch (resolvedType) {
+    case 'BOOLEAN' || 'STRING': {
+      const cssVariable = `${cssVariableName}: ${figmaVariableModeValue};`;
+      atomicCssVariables.add(cssVariable);
+      break;
+    }
+    case 'COLOR': {
+      const isValidRgba = isRgbaValue(figmaVariableModeValue);
+      const isValidRgb = isRgbValue(figmaVariableModeValue);
+
+      if (isValidRgba || isValidRgb) {
+        const colorValue = getColorValue(figmaVariableModeValue);
+        const cssVariable = `${cssVariableName}: ${colorValue};`;
+        atomicCssVariables.add(cssVariable);
+      }
+      break;
+    }
+    case 'FLOAT': {
+      const cssVariable = `${cssVariableName}: ${figmaVariableModeValue}px;`;
+      atomicCssVariables.add(cssVariable);
+    }
+  }
 }
