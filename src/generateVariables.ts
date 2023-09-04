@@ -31,7 +31,11 @@ export function generateVariables(themeObject: object) {
 
         const isAlias = isVariableAlias(figmaVariableModeValue);
         if (isAlias) {
-          handleAlias(variableId, cssVariableName, collectionMode.name);
+          handleAlias(
+            figmaVariableModeValue.id,
+            figmaVariable.name,
+            collectionMode.name,
+          );
           continue;
         }
 
