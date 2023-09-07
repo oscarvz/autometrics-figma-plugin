@@ -1,8 +1,6 @@
 # Node
 *.log
 *.log.*
-node_modules
 
-out/
+node_modules/
 dist/
-.parcel-cache/
