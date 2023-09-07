@@ -10,7 +10,7 @@ const PREFIX = 'effect';
 
 export function generateEffects(themeObject: object) {
   const effectStyles = figma.getLocalEffectStyles();
-  const effectCssVariables: Array<string> = [];
+  const effectCssVariables = new Set<string>();
 
   for (const { effects, name } of effectStyles) {
     const variableValues = new Set<string>();
@@ -39,7 +39,7 @@ export function generateEffects(themeObject: object) {
       name,
       cssVariableValue,
     );
-    effectCssVariables.push(cssVariable);
+    effectCssVariables.add(cssVariable);
 
     const paths = getSplitName(name);
     const prefixedPaths = [PREFIX, ...paths];
@@ -47,7 +47,7 @@ export function generateEffects(themeObject: object) {
   }
 
   return {
-    effectCssVariables: [...effectCssVariables],
+    effectCssVariables: Array.from(effectCssVariables),
   };
 }
 

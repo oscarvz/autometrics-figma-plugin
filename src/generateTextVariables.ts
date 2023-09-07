@@ -40,5 +40,5 @@ export function generateTextVariables(themeObject: object) {
     addToThemeObject(prefixedPaths, cssVariableName, themeObject);
   }
 
-  return { textCssVariables: [...textCssVariables] };
+  return { textCssVariables: Array.from(textCssVariables) };
 }

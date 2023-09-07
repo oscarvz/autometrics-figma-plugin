@@ -126,7 +126,7 @@ export function generateCssFile({
     const sortedDarkSemanticVariables = darkCssVariables.sort();
 
     // Indent & add dark theme selector & variables
-    const darkThemeMediaSelector = '\nbody[data-theme="dark"] {\n\n';
+    const darkThemeMediaSelector = '\nbody[data-theme="dark"] {\n';
     cssFile += darkThemeMediaSelector;
 
     for (const variable of sortedDarkSemanticVariables) {
