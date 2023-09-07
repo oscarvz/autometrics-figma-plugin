@@ -9,8 +9,8 @@ be used for a typed theming system for CSS-in-JS libraries like
 
 ## Usage
 
-```sh
-$ yarn; yarn build
+```
+yarn; yarn build
 ```
 
 Open Figma & switch to dev mode. Then go to `Plugins > Development > Import plugin from manifest...` and select the `manifest.json` file from your local repo.
