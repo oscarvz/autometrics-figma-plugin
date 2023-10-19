@@ -7,14 +7,26 @@ import {
   getSplitName,
 } from './utils';
 
+const PROTOTYPE_COLLECTION_NAME = '_Prototype';
+
 const atomicCssVariables = new Set<string>();
 const semanticCssVariablesDefault = new Set<string>();
 const semanticCssVariablesDark = new Set<string>();
 
+// TODO: Refactor this function to comply with ESLint rule
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
-  for (const { modes: collectionModes, variableIds } of variableCollections) {
+  for (const {
+    modes: collectionModes,
+    name: collectionName,
+    variableIds,
+  } of variableCollections) {
+    if (collectionName.startsWith(PROTOTYPE_COLLECTION_NAME)) {
+      continue;
+    }
+
     for (const collectionMode of collectionModes) {
       for (const variableId of variableIds) {
         const figmaVariable = figma.variables.getVariableById(variableId);
@@ -31,7 +43,7 @@ export function generateVariables(themeObject: object) {
 
         const isAlias = isVariableAlias(figmaVariableModeValue);
         if (isAlias) {
-          handleAlias(
+          generateAliasVariable(
             figmaVariableModeValue.id,
             figmaVariable.name,
             collectionMode.name,
@@ -39,7 +51,7 @@ export function generateVariables(themeObject: object) {
           continue;
         }
 
-        handleAtomicValues(
+        generateAtomicVariable(
           figmaVariable.resolvedType,
           cssVariableName,
           figmaVariableModeValue,
@@ -55,7 +67,7 @@ export function generateVariables(themeObject: object) {
   };
 }
 
-function handleAlias(
+function generateAliasVariable(
   variableId: string,
   variableName: string,
   collectionModeName: string,
@@ -79,7 +91,7 @@ function handleAlias(
   semanticCssVariablesDefault.add(aliasedVariable);
 }
 
-function handleAtomicValues(
+function generateAtomicVariable(
   resolvedType: string,
   cssVariableName: string,
   figmaVariableModeValue: Exclude<VariableValue, VariableAlias>,
