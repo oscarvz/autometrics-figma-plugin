@@ -10,7 +10,7 @@ import {
 const PROTOTYPE_COLLECTION_NAME = '_Prototype';
 
 const atomicCssVariables = new Set<string>();
-const semanticCssVariablesDefault = new Set<string>();
+const semanticCssVariablesLight = new Set<string>();
 const semanticCssVariablesDark = new Set<string>();
 
 // TODO: Refactor this function to comply with ESLint rule
@@ -62,7 +62,7 @@ export function generateVariables(themeObject: object) {
 
   return {
     atomicCssVariables: Array.from(atomicCssVariables),
-    semanticCssVariablesDefault: Array.from(semanticCssVariablesDefault),
+    semanticCssVariablesLight: Array.from(semanticCssVariablesLight),
     semanticCssVariablesDark: Array.from(semanticCssVariablesDark),
   };
 }
@@ -88,7 +88,7 @@ function generateAliasVariable(
     return;
   }
 
-  semanticCssVariablesDefault.add(aliasedVariable);
+  semanticCssVariablesLight.add(aliasedVariable);
 }
 
 function generateAtomicVariable(

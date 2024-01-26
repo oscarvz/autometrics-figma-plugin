@@ -98,6 +98,7 @@ export function addToThemeObject(
 
 type GenerateCssFileArguments = {
   baseCssVariables: Array<Array<string>>;
+  lightCssVariables: Array<string>;
   darkCssVariables?: Array<string>;
 };
 
@@ -105,6 +106,7 @@ type GenerateCssFileArguments = {
 // Dark override variables: Array<string>
 export function generateCssFile({
   baseCssVariables,
+  lightCssVariables,
   darkCssVariables = [],
 }: GenerateCssFileArguments) {
   const close = '}\n';
@@ -120,9 +122,14 @@ export function generateCssFile({
     cssFile += `  ${variable}\n`;
   }
 
+  for (const variable of lightCssVariables) {
+    cssFile += `  ${variable}\n`;
+  }
+
   cssFile += close;
 
   if (darkCssVariables.length > 0) {
+    // Add dark theme data selector & variables ================================
     const sortedDarkSemanticVariables = darkCssVariables.sort();
 
     // Indent & add dark theme selector & variables
@@ -131,6 +138,24 @@ export function generateCssFile({
 
     for (const variable of sortedDarkSemanticVariables) {
       cssFile += `  ${variable}\n`;
+    }
+
+    cssFile += `${close}`;
+
+    // Add dark theme native media selector ====================================
+    const darkThemeNativeMediaSelector =
+      '\n@media (prefers-color-scheme: dark) {\n';
+    cssFile += darkThemeNativeMediaSelector;
+
+    for (const variable of sortedDarkSemanticVariables) {
+      cssFile += `  ${variable}\n`;
+    }
+
+    const lightThemeMediaSelector = '\n  body[data-theme="light"] {\n';
+    cssFile += lightThemeMediaSelector;
+
+    for (const variable of lightCssVariables) {
+      cssFile += `    ${variable}\n`;
     }
 
     cssFile += `${close}`;

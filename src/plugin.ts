@@ -1,7 +1,7 @@
-import { generateTextVariables } from './generateTextVariables';
-import { generateCssFile, generateJsFile } from './utils';
-import { generateVariables } from './generateVariables';
 import { generateEffects } from './generateEffects';
+import { generateTextVariables } from './generateTextVariables';
+import { generateVariables } from './generateVariables';
+import { generateCssFile, generateJsFile } from './utils';
 
 export function generateFiles() {
   const themeObject = {};
@@ -9,7 +9,7 @@ export function generateFiles() {
   const {
     atomicCssVariables,
     semanticCssVariablesDark,
-    semanticCssVariablesDefault,
+    semanticCssVariablesLight,
   } = generateVariables(themeObject);
 
   const { textCssVariables } = generateTextVariables(themeObject);
@@ -19,10 +19,10 @@ export function generateFiles() {
   const cssFile = generateCssFile({
     baseCssVariables: [
       atomicCssVariables,
-      semanticCssVariablesDefault,
       textCssVariables,
       effectCssVariables,
     ],
+    lightCssVariables: semanticCssVariablesLight,
     darkCssVariables: semanticCssVariablesDark,
   });
 
