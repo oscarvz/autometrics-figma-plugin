@@ -145,11 +145,15 @@ export function generateCssFile({
     // Add dark theme native media selector ====================================
     const darkThemeNativeMediaSelector =
       '\n@media (prefers-color-scheme: dark) {\n';
+    const rootSelector = '  :root {\n';
     cssFile += darkThemeNativeMediaSelector;
+    cssFile += rootSelector;
 
     for (const variable of sortedDarkSemanticVariables) {
-      cssFile += `  ${variable}\n`;
+      cssFile += `    ${variable}\n`;
     }
+
+    cssFile += `  ${close}`;
 
     const lightThemeMediaSelector = '\n  body[data-theme="light"] {\n';
     cssFile += lightThemeMediaSelector;
@@ -158,6 +162,7 @@ export function generateCssFile({
       cssFile += `    ${variable}\n`;
     }
 
+    cssFile += `  ${close}`;
     cssFile += `${close}`;
   }
 
