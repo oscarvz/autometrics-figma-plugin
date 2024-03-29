@@ -8,18 +8,18 @@
     "lint": "eslint --ext .ts ./src",
     "format": "prettier --write \"src/**/*.ts\""
   },
-  "author": "oscarvz <oscar@fiberplane.com>",
+  "author": "oscarvz <oscarvz@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
-    "@figma/plugin-typings": "*",
-    "@typescript-eslint/eslint-plugin": "^6.2.1",
-    "@typescript-eslint/parser": "^6.2.1",
-    "eslint": "^8.46.0",
-    "eslint-config-prettier": "^8.9.0",
-    "eslint-plugin-sonarjs": "^0.21.0",
-    "prettier": "^3.0.0",
-    "tsup": "^7.1.0",
-    "typescript": "*"
+    "@figma/plugin-typings": "^1.89.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-sonarjs": "^0.25.0",
+    "prettier": "^3.2.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.3"
   },
   "repository": "git@github.com:oscarvz/figma-plugin.git",
   "private": false
