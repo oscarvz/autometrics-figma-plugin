@@ -81,39 +81,19 @@ function generateAliasVariable(
 
   const cssVariableName = getCssVariableName(variableName);
   const aliasedVariableValue = getCssVariableName(figmaAliasedVariable.name);
-  const lightDarkValue = (value: string) => `var(${value})`;
+  const lightDarkValue = `var(${aliasedVariableValue})`;
 
+  const isDarkMode = collectionModeName.toLowerCase().includes("dark");
   const storedValue = lightDarkVariables.get(cssVariableName);
 
-  if (collectionModeName.toLowerCase().includes("dark")) {
-    if (storedValue) {
-      lightDarkVariables.set(cssVariableName, {
-        ...storedValue,
-        dark: lightDarkValue(aliasedVariableValue),
-      });
-    } else {
-      lightDarkVariables.set(cssVariableName, {
-        dark: lightDarkValue(aliasedVariableValue),
-      });
-    }
-
-    return;
-  }
-
-  if (storedValue) {
-    lightDarkVariables.set(cssVariableName, {
-      ...storedValue,
-      light: lightDarkValue(aliasedVariableValue),
-    });
-  } else {
-    lightDarkVariables.set(cssVariableName, {
-      light: lightDarkValue(aliasedVariableValue),
-    });
-  }
+  lightDarkVariables.set(cssVariableName, {
+    ...storedValue,
+    [isDarkMode ? "dark" : "light"]: lightDarkValue,
+  });
 }
 
 function generateAtomicVariable(
-  resolvedType: string,
+  resolvedType: VariableResolvedDataType,
   cssVariableName: string,
   figmaVariableModeValue: Exclude<VariableValue, VariableAlias>,
 ) {
