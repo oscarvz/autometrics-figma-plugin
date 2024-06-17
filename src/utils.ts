@@ -48,7 +48,7 @@ export function addToThemeObject(
   paths: Array<string>,
   value: string,
   // biome-ignore lint/suspicious/noExplicitAny: TODO
-  currentObject: any = {},
+  currentObject: Record<string, any> = {},
 ): object | string {
   if (paths.length === 0) {
     return `var(${value})`;
@@ -59,7 +59,8 @@ export function addToThemeObject(
 
   // If the key already exists in the currentObject, merge the new nested object
   // with it.
-  if (currentObject.hasOwn(currentKey)) {
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: suggested `Object.hasOwn()` breaks
+  if (currentObject.hasOwnProperty(currentKey)) {
     if (typeof currentObject[currentKey] === "object") {
       currentObject[currentKey] = addToThemeObject(
         remainingPaths,
