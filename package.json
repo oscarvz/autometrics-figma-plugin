@@ -5,19 +5,14 @@
   "scripts": {
     "build": "tsup --minify",
     "watch": "tsup --watch",
-    "lint": "eslint --ext .ts ./src",
+    "lint": "biome lint",
     "format": "prettier --write \"src/**/*.ts\""
   },
   "author": "oscarvz <oscarvz@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
+    "@biomejs/biome": "1.8.1",
     "@figma/plugin-typings": "^1.96.0",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
-    "eslint": "^9.5.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-sonarjs": "^1.0.3",
-    "prettier": "^3.3.2",
     "tsup": "^8.1.0",
     "typescript": "^5.4.5"
   },
