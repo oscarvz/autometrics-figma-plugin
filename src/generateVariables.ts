@@ -2,7 +2,6 @@ import { isRgbValue, isRgbaValue, isVariableAlias } from "./typeGuards";
 import {
   addToThemeObject,
   getColorValue,
-  getCssVariable,
   getCssVariableName,
   getSplitName,
 } from "./utils";
@@ -10,11 +9,8 @@ import {
 const PROTOTYPE_COLLECTION_NAME = "_Prototype";
 
 const atomicCssVariables = new Set<string>();
-const semanticCssVariablesLight = new Set<string>();
-const semanticCssVariablesDark = new Set<string>();
+const lightDarkVariables = new Map<string, { light?: string; dark?: string }>();
 
-// TODO: Refactor this function to comply with ESLint rule
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
@@ -60,11 +56,17 @@ export function generateVariables(themeObject: object) {
     }
   }
 
-  return {
-    atomicCssVariables: Array.from(atomicCssVariables),
-    semanticCssVariablesLight: Array.from(semanticCssVariablesLight),
-    semanticCssVariablesDark: Array.from(semanticCssVariablesDark),
-  };
+  const semanticLightDarkVariables = [...lightDarkVariables].reduce<
+    Array<string>
+  >((accumulator, [name, { light, dark }]) => {
+    if (light && dark) {
+      accumulator.push(`${name}: light-dark(${light}, ${dark});`);
+    }
+
+    return accumulator;
+  }, []);
+
+  return [...atomicCssVariables, ...semanticLightDarkVariables];
 }
 
 function generateAliasVariable(
@@ -77,18 +79,37 @@ function generateAliasVariable(
     return;
   }
 
+  const cssVariableName = getCssVariableName(variableName);
   const aliasedVariableValue = getCssVariableName(figmaAliasedVariable.name);
-  const { aliasedVariable } = getCssVariable(
-    variableName,
-    aliasedVariableValue,
-  );
+  const lightDarkValue = (value: string) => `var(${value})`;
+
+  const storedValue = lightDarkVariables.get(cssVariableName);
 
   if (collectionModeName.toLowerCase().includes("dark")) {
-    semanticCssVariablesDark.add(aliasedVariable);
+    if (storedValue) {
+      lightDarkVariables.set(cssVariableName, {
+        ...storedValue,
+        dark: lightDarkValue(aliasedVariableValue),
+      });
+    } else {
+      lightDarkVariables.set(cssVariableName, {
+        dark: lightDarkValue(aliasedVariableValue),
+      });
+    }
+
     return;
   }
 
-  semanticCssVariablesLight.add(aliasedVariable);
+  if (storedValue) {
+    lightDarkVariables.set(cssVariableName, {
+      ...storedValue,
+      light: lightDarkValue(aliasedVariableValue),
+    });
+  } else {
+    lightDarkVariables.set(cssVariableName, {
+      light: lightDarkValue(aliasedVariableValue),
+    });
+  }
 }
 
 function generateAtomicVariable(

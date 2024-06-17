@@ -46,9 +46,7 @@ export function generateEffects(themeObject: object) {
     addToThemeObject(prefixedPaths, cssVariableName, themeObject);
   }
 
-  return {
-    effectCssVariables: Array.from(effectCssVariables),
-  };
+  return Array.from(effectCssVariables);
 }
 
 function handleShadowEffect(effect: DropShadowEffect | InnerShadowEffect) {
