@@ -1,4 +1,4 @@
-import { generateFiles } from './plugin';
+import { generateFiles } from "./plugin";
 
 const { cssFile, jsFile } = generateFiles();
 

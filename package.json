@@ -5,8 +5,8 @@
   "scripts": {
     "build": "tsup --minify",
     "watch": "tsup --watch",
-    "lint": "biome lint",
-    "format": "prettier --write \"src/**/*.ts\""
+    "lint": "biome lint src",
+    "format": "biome format --write src"
   },
   "author": "oscarvz <oscarvz@users.noreply.github.com>",
   "license": "MIT",
