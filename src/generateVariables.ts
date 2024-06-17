@@ -1,13 +1,13 @@
-import { isRgbValue, isRgbaValue, isVariableAlias } from './typeGuards';
+import { isRgbValue, isRgbaValue, isVariableAlias } from "./typeGuards";
 import {
   addToThemeObject,
   getColorValue,
   getCssVariable,
   getCssVariableName,
   getSplitName,
-} from './utils';
+} from "./utils";
 
-const PROTOTYPE_COLLECTION_NAME = '_Prototype';
+const PROTOTYPE_COLLECTION_NAME = "_Prototype";
 
 const atomicCssVariables = new Set<string>();
 const semanticCssVariablesLight = new Set<string>();
@@ -83,7 +83,7 @@ function generateAliasVariable(
     aliasedVariableValue,
   );
 
-  if (collectionModeName.toLowerCase().includes('dark')) {
+  if (collectionModeName.toLowerCase().includes("dark")) {
     semanticCssVariablesDark.add(aliasedVariable);
     return;
   }
@@ -97,12 +97,12 @@ function generateAtomicVariable(
   figmaVariableModeValue: Exclude<VariableValue, VariableAlias>,
 ) {
   switch (resolvedType) {
-    case 'BOOLEAN' || 'STRING': {
+    case "BOOLEAN" || "STRING": {
       const cssVariable = `${cssVariableName}: ${figmaVariableModeValue};`;
       atomicCssVariables.add(cssVariable);
       break;
     }
-    case 'COLOR': {
+    case "COLOR": {
       const isValidRgba = isRgbaValue(figmaVariableModeValue);
       const isValidRgb = isRgbValue(figmaVariableModeValue);
 
@@ -113,7 +113,7 @@ function generateAtomicVariable(
       }
       break;
     }
-    case 'FLOAT': {
+    case "FLOAT": {
       const cssVariable = `${cssVariableName}: ${figmaVariableModeValue}px;`;
       atomicCssVariables.add(cssVariable);
     }

@@ -1,7 +1,7 @@
-import { generateEffects } from './generateEffects';
-import { generateTextVariables } from './generateTextVariables';
-import { generateVariables } from './generateVariables';
-import { generateCssFile, generateJsFile } from './utils';
+import { generateEffects } from "./generateEffects";
+import { generateTextVariables } from "./generateTextVariables";
+import { generateVariables } from "./generateVariables";
+import { generateCssFile, generateJsFile } from "./utils";
 
 export function generateFiles() {
   const themeObject = {};
