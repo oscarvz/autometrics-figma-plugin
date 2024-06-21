@@ -6,23 +6,13 @@ import {
   getSplitName,
 } from "./utils";
 
-const PROTOTYPE_COLLECTION_NAME = "_Prototype";
-
 const atomicCssVariables = new Set<string>();
 const lightDarkVariables = new Map<string, { light?: string; dark?: string }>();
 
 export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
-  for (const {
-    modes: collectionModes,
-    name: collectionName,
-    variableIds,
-  } of variableCollections) {
-    if (collectionName.startsWith(PROTOTYPE_COLLECTION_NAME)) {
-      continue;
-    }
-
+  for (const { modes: collectionModes, variableIds } of variableCollections) {
     for (const collectionMode of collectionModes) {
       for (const variableId of variableIds) {
         const figmaVariable = figma.variables.getVariableById(variableId);
@@ -56,17 +46,15 @@ export function generateVariables(themeObject: object) {
     }
   }
 
-  const semanticLightDarkVariables = [...lightDarkVariables].reduce<
-    Array<string>
-  >((accumulator, [name, { light, dark }]) => {
-    if (light && dark) {
-      accumulator.push(`${name}: light-dark(${light}, ${dark});`);
-    }
+  const semanticVariables = [...lightDarkVariables].reduce<Array<string>>(
+    (accumulator, [name, { light, dark }]) =>
+      light && dark
+        ? accumulator.concat(`${name}: light-dark(${light}, ${dark});`)
+        : accumulator,
+    [],
+  );
 
-    return accumulator;
-  }, []);
-
-  return [...atomicCssVariables, ...semanticLightDarkVariables];
+  return [...atomicCssVariables, ...semanticVariables];
 }
 
 function generateAliasVariable(
