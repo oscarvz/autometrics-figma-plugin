@@ -2,31 +2,17 @@ import { isRgbValue, isRgbaValue, isVariableAlias } from "./typeGuards";
 import {
   addToThemeObject,
   getColorValue,
-  getCssVariable,
   getCssVariableName,
   getSplitName,
 } from "./utils";
 
-const PROTOTYPE_COLLECTION_NAME = "_Prototype";
-
 const atomicCssVariables = new Set<string>();
-const semanticCssVariablesLight = new Set<string>();
-const semanticCssVariablesDark = new Set<string>();
+const lightDarkVariables = new Map<string, { light?: string; dark?: string }>();
 
-// TODO: Refactor this function to comply with ESLint rule
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export function generateVariables(themeObject: object) {
   const variableCollections = figma.variables.getLocalVariableCollections();
 
-  for (const {
-    modes: collectionModes,
-    name: collectionName,
-    variableIds,
-  } of variableCollections) {
-    if (collectionName.startsWith(PROTOTYPE_COLLECTION_NAME)) {
-      continue;
-    }
-
+  for (const { modes: collectionModes, variableIds } of variableCollections) {
     for (const collectionMode of collectionModes) {
       for (const variableId of variableIds) {
         const figmaVariable = figma.variables.getVariableById(variableId);
@@ -60,11 +46,15 @@ export function generateVariables(themeObject: object) {
     }
   }
 
-  return {
-    atomicCssVariables: Array.from(atomicCssVariables),
-    semanticCssVariablesLight: Array.from(semanticCssVariablesLight),
-    semanticCssVariablesDark: Array.from(semanticCssVariablesDark),
-  };
+  const semanticVariables = [...lightDarkVariables].reduce<Array<string>>(
+    (accumulator, [name, { light, dark }]) =>
+      light && dark
+        ? accumulator.concat(`${name}: light-dark(${light}, ${dark});`)
+        : accumulator,
+    [],
+  );
+
+  return [...atomicCssVariables, ...semanticVariables];
 }
 
 function generateAliasVariable(
@@ -77,22 +67,21 @@ function generateAliasVariable(
     return;
   }
 
+  const cssVariableName = getCssVariableName(variableName);
   const aliasedVariableValue = getCssVariableName(figmaAliasedVariable.name);
-  const { aliasedVariable } = getCssVariable(
-    variableName,
-    aliasedVariableValue,
-  );
+  const lightDarkValue = `var(${aliasedVariableValue})`;
 
-  if (collectionModeName.toLowerCase().includes("dark")) {
-    semanticCssVariablesDark.add(aliasedVariable);
-    return;
-  }
+  const isDarkMode = collectionModeName.toLowerCase().includes("dark");
+  const storedValue = lightDarkVariables.get(cssVariableName);
 
-  semanticCssVariablesLight.add(aliasedVariable);
+  lightDarkVariables.set(cssVariableName, {
+    ...storedValue,
+    [isDarkMode ? "dark" : "light"]: lightDarkValue,
+  });
 }
 
 function generateAtomicVariable(
-  resolvedType: string,
+  resolvedType: VariableResolvedDataType,
   cssVariableName: string,
   figmaVariableModeValue: Exclude<VariableValue, VariableAlias>,
 ) {

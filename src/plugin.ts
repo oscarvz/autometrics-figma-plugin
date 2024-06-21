@@ -6,25 +6,15 @@ import { generateCssFile, generateJsFile } from "./utils";
 export function generateFiles() {
   const themeObject = {};
 
-  const {
-    atomicCssVariables,
-    semanticCssVariablesDark,
-    semanticCssVariablesLight,
-  } = generateVariables(themeObject);
+  const colorVariables = generateVariables(themeObject);
+  const textCssVariables = generateTextVariables(themeObject);
+  const effectCssVariables = generateEffects(themeObject);
 
-  const { textCssVariables } = generateTextVariables(themeObject);
-
-  const { effectCssVariables } = generateEffects(themeObject);
-
-  const cssFile = generateCssFile({
-    baseCssVariables: [
-      atomicCssVariables,
-      textCssVariables,
-      effectCssVariables,
-    ],
-    lightCssVariables: semanticCssVariablesLight,
-    darkCssVariables: semanticCssVariablesDark,
-  });
+  const cssFile = generateCssFile([
+    ...colorVariables,
+    ...textCssVariables,
+    ...effectCssVariables,
+  ]);
 
   const jsFile = generateJsFile(themeObject);
 
